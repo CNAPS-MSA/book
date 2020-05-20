@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.skcc.book.domain.enumeration.BookStatus;
 /**
  * Integration tests for the {@link BookResource} REST controller.
  */
@@ -43,6 +44,9 @@ public class BookResourceIT {
 
     private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
     private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
+
+    private static final BookStatus DEFAULT_BOOK_STATUS = BookStatus.AVAILABLE;
+    private static final BookStatus UPDATED_BOOK_STATUS = BookStatus.UNAVAILABLE;
 
     @Autowired
     private BookRepository bookRepository;
@@ -74,7 +78,8 @@ public class BookResourceIT {
         Book book = new Book()
             .title(DEFAULT_TITLE)
             .author(DEFAULT_AUTHOR)
-            .description(DEFAULT_DESCRIPTION);
+            .description(DEFAULT_DESCRIPTION)
+            .bookStatus(DEFAULT_BOOK_STATUS);
         return book;
     }
     /**
@@ -87,7 +92,8 @@ public class BookResourceIT {
         Book book = new Book()
             .title(UPDATED_TITLE)
             .author(UPDATED_AUTHOR)
-            .description(UPDATED_DESCRIPTION);
+            .description(UPDATED_DESCRIPTION)
+            .bookStatus(UPDATED_BOOK_STATUS);
         return book;
     }
 
@@ -115,6 +121,7 @@ public class BookResourceIT {
         assertThat(testBook.getTitle()).isEqualTo(DEFAULT_TITLE);
         assertThat(testBook.getAuthor()).isEqualTo(DEFAULT_AUTHOR);
         assertThat(testBook.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testBook.getBookStatus()).isEqualTo(DEFAULT_BOOK_STATUS);
     }
 
     @Test
@@ -208,7 +215,8 @@ public class BookResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(book.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].author").value(hasItem(DEFAULT_AUTHOR)))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].bookStatus").value(hasItem(DEFAULT_BOOK_STATUS.toString())));
     }
     
     @Test
@@ -224,7 +232,8 @@ public class BookResourceIT {
             .andExpect(jsonPath("$.id").value(book.getId().intValue()))
             .andExpect(jsonPath("$.title").value(DEFAULT_TITLE))
             .andExpect(jsonPath("$.author").value(DEFAULT_AUTHOR))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION));
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
+            .andExpect(jsonPath("$.bookStatus").value(DEFAULT_BOOK_STATUS.toString()));
     }
 
 
@@ -480,6 +489,58 @@ public class BookResourceIT {
         defaultBookShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
     }
 
+
+    @Test
+    @Transactional
+    public void getAllBooksByBookStatusIsEqualToSomething() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where bookStatus equals to DEFAULT_BOOK_STATUS
+        defaultBookShouldBeFound("bookStatus.equals=" + DEFAULT_BOOK_STATUS);
+
+        // Get all the bookList where bookStatus equals to UPDATED_BOOK_STATUS
+        defaultBookShouldNotBeFound("bookStatus.equals=" + UPDATED_BOOK_STATUS);
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByBookStatusIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where bookStatus not equals to DEFAULT_BOOK_STATUS
+        defaultBookShouldNotBeFound("bookStatus.notEquals=" + DEFAULT_BOOK_STATUS);
+
+        // Get all the bookList where bookStatus not equals to UPDATED_BOOK_STATUS
+        defaultBookShouldBeFound("bookStatus.notEquals=" + UPDATED_BOOK_STATUS);
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByBookStatusIsInShouldWork() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where bookStatus in DEFAULT_BOOK_STATUS or UPDATED_BOOK_STATUS
+        defaultBookShouldBeFound("bookStatus.in=" + DEFAULT_BOOK_STATUS + "," + UPDATED_BOOK_STATUS);
+
+        // Get all the bookList where bookStatus equals to UPDATED_BOOK_STATUS
+        defaultBookShouldNotBeFound("bookStatus.in=" + UPDATED_BOOK_STATUS);
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByBookStatusIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where bookStatus is not null
+        defaultBookShouldBeFound("bookStatus.specified=true");
+
+        // Get all the bookList where bookStatus is null
+        defaultBookShouldNotBeFound("bookStatus.specified=false");
+    }
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -490,7 +551,8 @@ public class BookResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(book.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].author").value(hasItem(DEFAULT_AUTHOR)))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].bookStatus").value(hasItem(DEFAULT_BOOK_STATUS.toString())));
 
         // Check, that the count call also returns 1
         restBookMockMvc.perform(get("/api/books/count?sort=id,desc&" + filter))
@@ -540,7 +602,8 @@ public class BookResourceIT {
         updatedBook
             .title(UPDATED_TITLE)
             .author(UPDATED_AUTHOR)
-            .description(UPDATED_DESCRIPTION);
+            .description(UPDATED_DESCRIPTION)
+            .bookStatus(UPDATED_BOOK_STATUS);
         BookDTO bookDTO = bookMapper.toDto(updatedBook);
 
         restBookMockMvc.perform(put("/api/books")
@@ -555,6 +618,7 @@ public class BookResourceIT {
         assertThat(testBook.getTitle()).isEqualTo(UPDATED_TITLE);
         assertThat(testBook.getAuthor()).isEqualTo(UPDATED_AUTHOR);
         assertThat(testBook.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testBook.getBookStatus()).isEqualTo(UPDATED_BOOK_STATUS);
     }
 
     @Test

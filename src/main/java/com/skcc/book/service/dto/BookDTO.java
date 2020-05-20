@@ -3,6 +3,7 @@ package com.skcc.book.service.dto;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Objects;
+import com.skcc.book.domain.enumeration.BookStatus;
 
 /**
  * A DTO for the {@link com.skcc.book.domain.Book} entity.
@@ -19,6 +20,8 @@ public class BookDTO implements Serializable {
 
     @NotNull
     private String description;
+
+    private BookStatus bookStatus;
 
     
     public Long getId() {
@@ -53,6 +56,14 @@ public class BookDTO implements Serializable {
         this.description = description;
     }
 
+    public BookStatus getBookStatus() {
+        return bookStatus;
+    }
+
+    public void setBookStatus(BookStatus bookStatus) {
+        this.bookStatus = bookStatus;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -81,6 +92,7 @@ public class BookDTO implements Serializable {
             ", title='" + getTitle() + "'" +
             ", author='" + getAuthor() + "'" +
             ", description='" + getDescription() + "'" +
+            ", bookStatus='" + getBookStatus() + "'" +
             "}";
     }
 }

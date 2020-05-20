@@ -9,6 +9,8 @@ import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.skcc.book.domain.enumeration.BookStatus;
+
 /**
  * A Book.
  */
@@ -34,6 +36,10 @@ public class Book implements Serializable {
     @NotNull
     @Column(name = "description", nullable = false)
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "book_status")
+    private BookStatus bookStatus;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -82,6 +88,19 @@ public class Book implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public BookStatus getBookStatus() {
+        return bookStatus;
+    }
+
+    public Book bookStatus(BookStatus bookStatus) {
+        this.bookStatus = bookStatus;
+        return this;
+    }
+
+    public void setBookStatus(BookStatus bookStatus) {
+        this.bookStatus = bookStatus;
+    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -107,6 +126,7 @@ public class Book implements Serializable {
             ", title='" + getTitle() + "'" +
             ", author='" + getAuthor() + "'" +
             ", description='" + getDescription() + "'" +
+            ", bookStatus='" + getBookStatus() + "'" +
             "}";
     }
 }

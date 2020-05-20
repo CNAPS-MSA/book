@@ -100,6 +100,9 @@ public class BookQueryService extends QueryService<Book> {
             if (criteria.getDescription() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getDescription(), Book_.description));
             }
+            if (criteria.getBookStatus() != null) {
+                specification = specification.and(buildSpecification(criteria.getBookStatus(), Book_.bookStatus));
+            }
         }
         return specification;
     }

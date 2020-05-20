@@ -3,6 +3,7 @@ package com.skcc.book.service.dto;
 import java.io.Serializable;
 import java.util.Objects;
 import io.github.jhipster.service.Criteria;
+import com.skcc.book.domain.enumeration.BookStatus;
 import io.github.jhipster.service.filter.BooleanFilter;
 import io.github.jhipster.service.filter.DoubleFilter;
 import io.github.jhipster.service.filter.Filter;
@@ -21,6 +22,24 @@ import io.github.jhipster.service.filter.StringFilter;
  * fix type specific filters.
  */
 public class BookCriteria implements Serializable, Criteria {
+    /**
+     * Class for filtering BookStatus
+     */
+    public static class BookStatusFilter extends Filter<BookStatus> {
+
+        public BookStatusFilter() {
+        }
+
+        public BookStatusFilter(BookStatusFilter filter) {
+            super(filter);
+        }
+
+        @Override
+        public BookStatusFilter copy() {
+            return new BookStatusFilter(this);
+        }
+
+    }
 
     private static final long serialVersionUID = 1L;
 
@@ -32,6 +51,8 @@ public class BookCriteria implements Serializable, Criteria {
 
     private StringFilter description;
 
+    private BookStatusFilter bookStatus;
+
     public BookCriteria() {
     }
 
@@ -40,6 +61,7 @@ public class BookCriteria implements Serializable, Criteria {
         this.title = other.title == null ? null : other.title.copy();
         this.author = other.author == null ? null : other.author.copy();
         this.description = other.description == null ? null : other.description.copy();
+        this.bookStatus = other.bookStatus == null ? null : other.bookStatus.copy();
     }
 
     @Override
@@ -79,6 +101,14 @@ public class BookCriteria implements Serializable, Criteria {
         this.description = description;
     }
 
+    public BookStatusFilter getBookStatus() {
+        return bookStatus;
+    }
+
+    public void setBookStatus(BookStatusFilter bookStatus) {
+        this.bookStatus = bookStatus;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -93,7 +123,8 @@ public class BookCriteria implements Serializable, Criteria {
             Objects.equals(id, that.id) &&
             Objects.equals(title, that.title) &&
             Objects.equals(author, that.author) &&
-            Objects.equals(description, that.description);
+            Objects.equals(description, that.description) &&
+            Objects.equals(bookStatus, that.bookStatus);
     }
 
     @Override
@@ -102,7 +133,8 @@ public class BookCriteria implements Serializable, Criteria {
         id,
         title,
         author,
-        description
+        description,
+        bookStatus
         );
     }
 
@@ -113,6 +145,7 @@ public class BookCriteria implements Serializable, Criteria {
                 (title != null ? "title=" + title + ", " : "") +
                 (author != null ? "author=" + author + ", " : "") +
                 (description != null ? "description=" + description + ", " : "") +
+                (bookStatus != null ? "bookStatus=" + bookStatus + ", " : "") +
             "}";
     }
 

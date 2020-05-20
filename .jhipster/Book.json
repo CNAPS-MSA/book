@@ -23,6 +23,11 @@
             "fieldValidateRules": [
                 "required"
             ]
+        },
+        {
+            "fieldName": "bookStatus",
+            "fieldType": "BookStatus",
+            "fieldValues": "AVAILABLE,UNAVAILABLE"
         }
     ],
     "changelogDate": "20200506084946",
