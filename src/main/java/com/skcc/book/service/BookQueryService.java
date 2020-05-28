@@ -2,8 +2,6 @@ package com.skcc.book.service;
 
 import java.util.List;
 
-import javax.persistence.criteria.JoinType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -17,8 +15,8 @@ import io.github.jhipster.service.QueryService;
 import com.skcc.book.domain.Book;
 import com.skcc.book.domain.*; // for static metamodels
 import com.skcc.book.repository.BookRepository;
-import com.skcc.book.service.dto.BookCriteria;
-import com.skcc.book.service.dto.BookDTO;
+import com.skcc.book.web.rest.dto.BookCriteria;
+import com.skcc.book.web.rest.dto.BookDTO;
 import com.skcc.book.service.mapper.BookMapper;
 
 /**
@@ -102,6 +100,12 @@ public class BookQueryService extends QueryService<Book> {
             }
             if (criteria.getBookStatus() != null) {
                 specification = specification.and(buildSpecification(criteria.getBookStatus(), Book_.bookStatus));
+            }
+            if (criteria.getCategory() != null) {
+                specification = specification.and(buildSpecification(criteria.getCategory(), Book_.category));
+            }
+            if (criteria.getBarcode() != null) {
+                specification = specification.and(buildRangeSpecification(criteria.getBarcode(), Book_.barcode));
             }
         }
         return specification;

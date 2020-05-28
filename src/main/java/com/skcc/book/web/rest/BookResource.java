@@ -1,9 +1,11 @@
 package com.skcc.book.web.rest;
 
+import com.skcc.book.domain.Book;
 import com.skcc.book.service.BookService;
+import com.skcc.book.web.rest.dto.BookInfo;
 import com.skcc.book.web.rest.errors.BadRequestAlertException;
-import com.skcc.book.service.dto.BookDTO;
-import com.skcc.book.service.dto.BookCriteria;
+import com.skcc.book.web.rest.dto.BookDTO;
+import com.skcc.book.web.rest.dto.BookCriteria;
 import com.skcc.book.service.BookQueryService;
 
 import io.github.jhipster.web.util.HeaderUtil;
@@ -15,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -140,5 +142,13 @@ public class BookResource {
         log.debug("REST request to delete Book : {}", id);
         bookService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+    }
+
+    @GetMapping("/getBookInfo/{bookIds}")
+    public List<BookInfo> getBookInfo(@PathVariable("bookIds") List<Long> bookIds){
+        log.debug("Got feign request!!");
+        List<BookInfo> bookInfoList= bookService.getBookInfo(bookIds);
+
+        return bookInfoList;
     }
 }

@@ -1,6 +1,6 @@
-package com.skcc.book.service.dto;
+package com.skcc.book.domain;
 
-public class RentalBookDTO {
+public class UpdateBookEvent {
 
     private Long bookId;
     private String bookStatus;

@@ -2,7 +2,7 @@ package com.skcc.book.service.mapper;
 
 
 import com.skcc.book.domain.*;
-import com.skcc.book.service.dto.BookDTO;
+import com.skcc.book.web.rest.dto.BookDTO;
 
 import org.mapstruct.*;
 

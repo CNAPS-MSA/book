@@ -1,11 +1,11 @@
-package com.skcc.book.service;
+package com.skcc.book.adaptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skcc.book.config.KafkaProperties;
 import com.skcc.book.domain.Book;
 import com.skcc.book.domain.enumeration.BookStatus;
 import com.skcc.book.repository.BookRepository;
-import com.skcc.book.service.dto.RentalBookDTO;
+import com.skcc.book.domain.UpdateBookEvent;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -22,9 +22,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
-public class KafkaConsumerService {
+public class BookKafkaConsumer {
 
-    private final Logger log = LoggerFactory.getLogger(KafkaConsumerService.class);
+    private final Logger log = LoggerFactory.getLogger(BookKafkaConsumer.class);
 
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
@@ -39,7 +39,7 @@ public class KafkaConsumerService {
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
 
-    public KafkaConsumerService(KafkaProperties kafkaProperties, BookRepository bookRepository) {
+    public BookKafkaConsumer(KafkaProperties kafkaProperties, BookRepository bookRepository) {
         this.kafkaProperties = kafkaProperties;
         this.bookRepository = bookRepository;
     }
@@ -61,9 +61,9 @@ public class KafkaConsumerService {
                     for(ConsumerRecord<String, String> record: records){
                         log.info("Consumed message in {} : {}", TOPIC, record.value());
                         ObjectMapper objectMapper = new ObjectMapper();
-                        RentalBookDTO rentalBookDTO = objectMapper.readValue(record.value(), RentalBookDTO.class);
-                        Book book = bookRepository.findById(rentalBookDTO.getBookId()).get();
-                        book.setBookStatus(BookStatus.valueOf(rentalBookDTO.getBookStatus()));
+                        UpdateBookEvent updateBookEvent = objectMapper.readValue(record.value(), UpdateBookEvent.class);
+                        Book book = bookRepository.findById(updateBookEvent.getBookId()).get();
+                        book.setBookStatus(BookStatus.valueOf(updateBookEvent.getBookStatus()));
                         bookRepository.save(book);
 
                     }

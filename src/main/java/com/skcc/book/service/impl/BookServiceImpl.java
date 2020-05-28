@@ -3,8 +3,9 @@ package com.skcc.book.service.impl;
 import com.skcc.book.service.BookService;
 import com.skcc.book.domain.Book;
 import com.skcc.book.repository.BookRepository;
-import com.skcc.book.service.dto.BookDTO;
+import com.skcc.book.web.rest.dto.BookDTO;
 import com.skcc.book.service.mapper.BookMapper;
+import com.skcc.book.web.rest.dto.BookInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link Book}.
@@ -84,5 +88,14 @@ public class BookServiceImpl implements BookService {
     public void delete(Long id) {
         log.debug("Request to delete Book : {}", id);
         bookRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookInfo> getBookInfo(List<Long> bookIds) {
+        List<BookInfo> bookInfoList = bookIds.stream()
+            .map(b -> new BookInfo(b, bookRepository.findById(b).get().getTitle()))
+            .collect(Collectors.toList());
+        return bookInfoList;
     }
 }
