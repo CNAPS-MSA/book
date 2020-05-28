@@ -1,13 +1,11 @@
-package com.skcc.book.service.dto;
+package com.skcc.book.web.rest.dto;
 
 import java.io.Serializable;
 import java.util.Objects;
 import io.github.jhipster.service.Criteria;
 import com.skcc.book.domain.enumeration.BookStatus;
-import io.github.jhipster.service.filter.BooleanFilter;
-import io.github.jhipster.service.filter.DoubleFilter;
+import com.skcc.book.domain.enumeration.Categories;
 import io.github.jhipster.service.filter.Filter;
-import io.github.jhipster.service.filter.FloatFilter;
 import io.github.jhipster.service.filter.IntegerFilter;
 import io.github.jhipster.service.filter.LongFilter;
 import io.github.jhipster.service.filter.StringFilter;
@@ -40,6 +38,24 @@ public class BookCriteria implements Serializable, Criteria {
         }
 
     }
+    /**
+     * Class for filtering Categories
+     */
+    public static class CategoriesFilter extends Filter<Categories> {
+
+        public CategoriesFilter() {
+        }
+
+        public CategoriesFilter(CategoriesFilter filter) {
+            super(filter);
+        }
+
+        @Override
+        public CategoriesFilter copy() {
+            return new CategoriesFilter(this);
+        }
+
+    }
 
     private static final long serialVersionUID = 1L;
 
@@ -53,6 +69,10 @@ public class BookCriteria implements Serializable, Criteria {
 
     private BookStatusFilter bookStatus;
 
+    private CategoriesFilter category;
+
+    private IntegerFilter barcode;
+
     public BookCriteria() {
     }
 
@@ -62,6 +82,8 @@ public class BookCriteria implements Serializable, Criteria {
         this.author = other.author == null ? null : other.author.copy();
         this.description = other.description == null ? null : other.description.copy();
         this.bookStatus = other.bookStatus == null ? null : other.bookStatus.copy();
+        this.category = other.category == null ? null : other.category.copy();
+        this.barcode = other.barcode == null ? null : other.barcode.copy();
     }
 
     @Override
@@ -109,6 +131,22 @@ public class BookCriteria implements Serializable, Criteria {
         this.bookStatus = bookStatus;
     }
 
+    public CategoriesFilter getCategory() {
+        return category;
+    }
+
+    public void setCategory(CategoriesFilter category) {
+        this.category = category;
+    }
+
+    public IntegerFilter getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(IntegerFilter barcode) {
+        this.barcode = barcode;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -124,7 +162,9 @@ public class BookCriteria implements Serializable, Criteria {
             Objects.equals(title, that.title) &&
             Objects.equals(author, that.author) &&
             Objects.equals(description, that.description) &&
-            Objects.equals(bookStatus, that.bookStatus);
+            Objects.equals(bookStatus, that.bookStatus) &&
+            Objects.equals(category, that.category) &&
+            Objects.equals(barcode, that.barcode);
     }
 
     @Override
@@ -134,7 +174,9 @@ public class BookCriteria implements Serializable, Criteria {
         title,
         author,
         description,
-        bookStatus
+        bookStatus,
+        category,
+        barcode
         );
     }
 
@@ -146,6 +188,8 @@ public class BookCriteria implements Serializable, Criteria {
                 (author != null ? "author=" + author + ", " : "") +
                 (description != null ? "description=" + description + ", " : "") +
                 (bookStatus != null ? "bookStatus=" + bookStatus + ", " : "") +
+                (category != null ? "category=" + category + ", " : "") +
+                (barcode != null ? "barcode=" + barcode + ", " : "") +
             "}";
     }
 

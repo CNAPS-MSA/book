@@ -4,9 +4,8 @@ import com.skcc.book.BookApp;
 import com.skcc.book.domain.Book;
 import com.skcc.book.repository.BookRepository;
 import com.skcc.book.service.BookService;
-import com.skcc.book.service.dto.BookDTO;
+import com.skcc.book.web.rest.dto.BookDTO;
 import com.skcc.book.service.mapper.BookMapper;
-import com.skcc.book.service.dto.BookCriteria;
 import com.skcc.book.service.BookQueryService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.skcc.book.domain.enumeration.BookStatus;
+import com.skcc.book.domain.enumeration.Categories;
 /**
  * Integration tests for the {@link BookResource} REST controller.
  */
@@ -47,6 +47,13 @@ public class BookResourceIT {
 
     private static final BookStatus DEFAULT_BOOK_STATUS = BookStatus.AVAILABLE;
     private static final BookStatus UPDATED_BOOK_STATUS = BookStatus.UNAVAILABLE;
+
+    private static final Categories DEFAULT_CATEGORY = Categories.IT;
+    private static final Categories UPDATED_CATEGORY = Categories.LITERATURE;
+
+    private static final Integer DEFAULT_BARCODE = 1;
+    private static final Integer UPDATED_BARCODE = 2;
+    private static final Integer SMALLER_BARCODE = 1 - 1;
 
     @Autowired
     private BookRepository bookRepository;
@@ -79,7 +86,9 @@ public class BookResourceIT {
             .title(DEFAULT_TITLE)
             .author(DEFAULT_AUTHOR)
             .description(DEFAULT_DESCRIPTION)
-            .bookStatus(DEFAULT_BOOK_STATUS);
+            .bookStatus(DEFAULT_BOOK_STATUS)
+            .category(DEFAULT_CATEGORY)
+            .barcode(DEFAULT_BARCODE);
         return book;
     }
     /**
@@ -93,7 +102,9 @@ public class BookResourceIT {
             .title(UPDATED_TITLE)
             .author(UPDATED_AUTHOR)
             .description(UPDATED_DESCRIPTION)
-            .bookStatus(UPDATED_BOOK_STATUS);
+            .bookStatus(UPDATED_BOOK_STATUS)
+            .category(UPDATED_CATEGORY)
+            .barcode(UPDATED_BARCODE);
         return book;
     }
 
@@ -122,6 +133,8 @@ public class BookResourceIT {
         assertThat(testBook.getAuthor()).isEqualTo(DEFAULT_AUTHOR);
         assertThat(testBook.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testBook.getBookStatus()).isEqualTo(DEFAULT_BOOK_STATUS);
+        assertThat(testBook.getCategory()).isEqualTo(DEFAULT_CATEGORY);
+        assertThat(testBook.getBarcode()).isEqualTo(DEFAULT_BARCODE);
     }
 
     @Test
@@ -216,9 +229,11 @@ public class BookResourceIT {
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].author").value(hasItem(DEFAULT_AUTHOR)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].bookStatus").value(hasItem(DEFAULT_BOOK_STATUS.toString())));
+            .andExpect(jsonPath("$.[*].bookStatus").value(hasItem(DEFAULT_BOOK_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].category").value(hasItem(DEFAULT_CATEGORY.toString())))
+            .andExpect(jsonPath("$.[*].barcode").value(hasItem(DEFAULT_BARCODE)));
     }
-    
+
     @Test
     @Transactional
     public void getBook() throws Exception {
@@ -233,7 +248,9 @@ public class BookResourceIT {
             .andExpect(jsonPath("$.title").value(DEFAULT_TITLE))
             .andExpect(jsonPath("$.author").value(DEFAULT_AUTHOR))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
-            .andExpect(jsonPath("$.bookStatus").value(DEFAULT_BOOK_STATUS.toString()));
+            .andExpect(jsonPath("$.bookStatus").value(DEFAULT_BOOK_STATUS.toString()))
+            .andExpect(jsonPath("$.category").value(DEFAULT_CATEGORY.toString()))
+            .andExpect(jsonPath("$.barcode").value(DEFAULT_BARCODE));
     }
 
 
@@ -541,6 +558,163 @@ public class BookResourceIT {
         // Get all the bookList where bookStatus is null
         defaultBookShouldNotBeFound("bookStatus.specified=false");
     }
+
+    @Test
+    @Transactional
+    public void getAllBooksByCategoryIsEqualToSomething() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where category equals to DEFAULT_CATEGORY
+        defaultBookShouldBeFound("category.equals=" + DEFAULT_CATEGORY);
+
+        // Get all the bookList where category equals to UPDATED_CATEGORY
+        defaultBookShouldNotBeFound("category.equals=" + UPDATED_CATEGORY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByCategoryIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where category not equals to DEFAULT_CATEGORY
+        defaultBookShouldNotBeFound("category.notEquals=" + DEFAULT_CATEGORY);
+
+        // Get all the bookList where category not equals to UPDATED_CATEGORY
+        defaultBookShouldBeFound("category.notEquals=" + UPDATED_CATEGORY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByCategoryIsInShouldWork() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where category in DEFAULT_CATEGORY or UPDATED_CATEGORY
+        defaultBookShouldBeFound("category.in=" + DEFAULT_CATEGORY + "," + UPDATED_CATEGORY);
+
+        // Get all the bookList where category equals to UPDATED_CATEGORY
+        defaultBookShouldNotBeFound("category.in=" + UPDATED_CATEGORY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByCategoryIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where category is not null
+        defaultBookShouldBeFound("category.specified=true");
+
+        // Get all the bookList where category is null
+        defaultBookShouldNotBeFound("category.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByBarcodeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where barcode equals to DEFAULT_BARCODE
+        defaultBookShouldBeFound("barcode.equals=" + DEFAULT_BARCODE);
+
+        // Get all the bookList where barcode equals to UPDATED_BARCODE
+        defaultBookShouldNotBeFound("barcode.equals=" + UPDATED_BARCODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByBarcodeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where barcode not equals to DEFAULT_BARCODE
+        defaultBookShouldNotBeFound("barcode.notEquals=" + DEFAULT_BARCODE);
+
+        // Get all the bookList where barcode not equals to UPDATED_BARCODE
+        defaultBookShouldBeFound("barcode.notEquals=" + UPDATED_BARCODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByBarcodeIsInShouldWork() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where barcode in DEFAULT_BARCODE or UPDATED_BARCODE
+        defaultBookShouldBeFound("barcode.in=" + DEFAULT_BARCODE + "," + UPDATED_BARCODE);
+
+        // Get all the bookList where barcode equals to UPDATED_BARCODE
+        defaultBookShouldNotBeFound("barcode.in=" + UPDATED_BARCODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByBarcodeIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where barcode is not null
+        defaultBookShouldBeFound("barcode.specified=true");
+
+        // Get all the bookList where barcode is null
+        defaultBookShouldNotBeFound("barcode.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByBarcodeIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where barcode is greater than or equal to DEFAULT_BARCODE
+        defaultBookShouldBeFound("barcode.greaterThanOrEqual=" + DEFAULT_BARCODE);
+
+        // Get all the bookList where barcode is greater than or equal to UPDATED_BARCODE
+        defaultBookShouldNotBeFound("barcode.greaterThanOrEqual=" + UPDATED_BARCODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByBarcodeIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where barcode is less than or equal to DEFAULT_BARCODE
+        defaultBookShouldBeFound("barcode.lessThanOrEqual=" + DEFAULT_BARCODE);
+
+        // Get all the bookList where barcode is less than or equal to SMALLER_BARCODE
+        defaultBookShouldNotBeFound("barcode.lessThanOrEqual=" + SMALLER_BARCODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByBarcodeIsLessThanSomething() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where barcode is less than DEFAULT_BARCODE
+        defaultBookShouldNotBeFound("barcode.lessThan=" + DEFAULT_BARCODE);
+
+        // Get all the bookList where barcode is less than UPDATED_BARCODE
+        defaultBookShouldBeFound("barcode.lessThan=" + UPDATED_BARCODE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllBooksByBarcodeIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        bookRepository.saveAndFlush(book);
+
+        // Get all the bookList where barcode is greater than DEFAULT_BARCODE
+        defaultBookShouldNotBeFound("barcode.greaterThan=" + DEFAULT_BARCODE);
+
+        // Get all the bookList where barcode is greater than SMALLER_BARCODE
+        defaultBookShouldBeFound("barcode.greaterThan=" + SMALLER_BARCODE);
+    }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -552,7 +726,9 @@ public class BookResourceIT {
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].author").value(hasItem(DEFAULT_AUTHOR)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].bookStatus").value(hasItem(DEFAULT_BOOK_STATUS.toString())));
+            .andExpect(jsonPath("$.[*].bookStatus").value(hasItem(DEFAULT_BOOK_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].category").value(hasItem(DEFAULT_CATEGORY.toString())))
+            .andExpect(jsonPath("$.[*].barcode").value(hasItem(DEFAULT_BARCODE)));
 
         // Check, that the count call also returns 1
         restBookMockMvc.perform(get("/api/books/count?sort=id,desc&" + filter))
@@ -603,7 +779,9 @@ public class BookResourceIT {
             .title(UPDATED_TITLE)
             .author(UPDATED_AUTHOR)
             .description(UPDATED_DESCRIPTION)
-            .bookStatus(UPDATED_BOOK_STATUS);
+            .bookStatus(UPDATED_BOOK_STATUS)
+            .category(UPDATED_CATEGORY)
+            .barcode(UPDATED_BARCODE);
         BookDTO bookDTO = bookMapper.toDto(updatedBook);
 
         restBookMockMvc.perform(put("/api/books")
@@ -619,6 +797,8 @@ public class BookResourceIT {
         assertThat(testBook.getAuthor()).isEqualTo(UPDATED_AUTHOR);
         assertThat(testBook.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testBook.getBookStatus()).isEqualTo(UPDATED_BOOK_STATUS);
+        assertThat(testBook.getCategory()).isEqualTo(UPDATED_CATEGORY);
+        assertThat(testBook.getBarcode()).isEqualTo(UPDATED_BARCODE);
     }
 
     @Test

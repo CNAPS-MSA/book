@@ -1,15 +1,16 @@
-package com.skcc.book.service.dto;
+package com.skcc.book.web.rest.dto;
 
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Objects;
 import com.skcc.book.domain.enumeration.BookStatus;
+import com.skcc.book.domain.enumeration.Categories;
 
 /**
  * A DTO for the {@link com.skcc.book.domain.Book} entity.
  */
 public class BookDTO implements Serializable {
-    
+
     private Long id;
 
     @NotNull
@@ -23,7 +24,11 @@ public class BookDTO implements Serializable {
 
     private BookStatus bookStatus;
 
-    
+    private Categories category;
+
+    private Integer barcode;
+
+
     public Long getId() {
         return id;
     }
@@ -64,6 +69,22 @@ public class BookDTO implements Serializable {
         this.bookStatus = bookStatus;
     }
 
+    public Categories getCategory() {
+        return category;
+    }
+
+    public void setCategory(Categories category) {
+        this.category = category;
+    }
+
+    public Integer getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(Integer barcode) {
+        this.barcode = barcode;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -93,6 +114,8 @@ public class BookDTO implements Serializable {
             ", author='" + getAuthor() + "'" +
             ", description='" + getDescription() + "'" +
             ", bookStatus='" + getBookStatus() + "'" +
+            ", category='" + getCategory() + "'" +
+            ", barcode=" + getBarcode() +
             "}";
     }
 }

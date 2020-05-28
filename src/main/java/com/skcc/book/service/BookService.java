@@ -1,10 +1,12 @@
 package com.skcc.book.service;
 
-import com.skcc.book.service.dto.BookDTO;
+import com.skcc.book.web.rest.dto.BookDTO;
 
+import com.skcc.book.web.rest.dto.BookInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -42,4 +44,6 @@ public interface BookService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    List<BookInfo> getBookInfo(List<Long> bookIds);
 }

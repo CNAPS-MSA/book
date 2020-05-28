@@ -11,6 +11,8 @@ import java.util.Objects;
 
 import com.skcc.book.domain.enumeration.BookStatus;
 
+import com.skcc.book.domain.enumeration.Categories;
+
 /**
  * A Book.
  */
@@ -40,6 +42,13 @@ public class Book implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "book_status")
     private BookStatus bookStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    private Categories category;
+
+    @Column(name = "barcode")
+    private Integer barcode;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -101,6 +110,32 @@ public class Book implements Serializable {
     public void setBookStatus(BookStatus bookStatus) {
         this.bookStatus = bookStatus;
     }
+
+    public Categories getCategory() {
+        return category;
+    }
+
+    public Book category(Categories category) {
+        this.category = category;
+        return this;
+    }
+
+    public void setCategory(Categories category) {
+        this.category = category;
+    }
+
+    public Integer getBarcode() {
+        return barcode;
+    }
+
+    public Book barcode(Integer barcode) {
+        this.barcode = barcode;
+        return this;
+    }
+
+    public void setBarcode(Integer barcode) {
+        this.barcode = barcode;
+    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -127,6 +162,8 @@ public class Book implements Serializable {
             ", author='" + getAuthor() + "'" +
             ", description='" + getDescription() + "'" +
             ", bookStatus='" + getBookStatus() + "'" +
+            ", category='" + getCategory() + "'" +
+            ", barcode=" + getBarcode() +
             "}";
     }
 }

@@ -28,6 +28,12 @@
             <column name="book_status" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+            <column name="category" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="barcode" type="integer">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
     </changeSet>
@@ -55,6 +61,8 @@
             <column name="author" type="string"/>
             <column name="description" type="string"/>
             <column name="book_status" type="string"/>
+            <column name="category" type="string"/>
+            <column name="barcode" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>

@@ -28,6 +28,15 @@
             "fieldName": "bookStatus",
             "fieldType": "BookStatus",
             "fieldValues": "AVAILABLE,UNAVAILABLE"
+        },
+        {
+            "fieldName": "category",
+            "fieldType": "Categories",
+            "fieldValues": "IT,LITERATURE,HISTORY,SCIENCE,ART,LANGUAGE"
+        },
+        {
+            "fieldName": "barcode",
+            "fieldType": "Integer"
         }
     ],
     "changelogDate": "20200506084946",
