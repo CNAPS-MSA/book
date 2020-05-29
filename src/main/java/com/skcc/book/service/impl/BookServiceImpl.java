@@ -1,5 +1,6 @@
 package com.skcc.book.service.impl;
 
+import com.skcc.book.domain.enumeration.BookStatus;
 import com.skcc.book.service.BookService;
 import com.skcc.book.domain.Book;
 import com.skcc.book.repository.BookRepository;
@@ -94,6 +95,7 @@ public class BookServiceImpl implements BookService {
     @Transactional(readOnly = true)
     public List<BookInfo> getBookInfo(List<Long> bookIds) {
         List<BookInfo> bookInfoList = bookIds.stream()
+            .filter(b -> bookRepository.findById(b).get().getBookStatus().equals(BookStatus.AVAILABLE)) //불가능상태인 book에 대해 rental에 알람 또는 예외처 필요
             .map(b -> new BookInfo(b, bookRepository.findById(b).get().getTitle()))
             .collect(Collectors.toList());
         return bookInfoList;
