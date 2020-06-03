@@ -28,7 +28,7 @@ public class BookKafkaConsumer {
 
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public static final String TOPIC ="topic_kafka";
+    public static final String TOPIC ="topic_book";
 
     private final KafkaProperties kafkaProperties;
 
