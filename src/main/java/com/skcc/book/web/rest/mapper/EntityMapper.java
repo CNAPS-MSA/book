@@ -1,4 +1,4 @@
-package com.skcc.book.service.mapper;
+package com.skcc.book.web.rest.mapper;
 
 import java.util.List;
 

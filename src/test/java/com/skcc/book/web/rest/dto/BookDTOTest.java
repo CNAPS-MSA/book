@@ -1,4 +1,4 @@
-package com.skcc.book.service.dto;
+package com.skcc.book.web.rest.dto;
 
 import com.skcc.book.web.rest.dto.BookDTO;
 import org.junit.jupiter.api.Test;

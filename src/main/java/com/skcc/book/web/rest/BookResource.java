@@ -1,12 +1,9 @@
 package com.skcc.book.web.rest;
 
-import com.skcc.book.domain.Book;
 import com.skcc.book.service.BookService;
 import com.skcc.book.web.rest.dto.BookInfo;
 import com.skcc.book.web.rest.errors.BadRequestAlertException;
 import com.skcc.book.web.rest.dto.BookDTO;
-import com.skcc.book.web.rest.dto.BookCriteria;
-import com.skcc.book.service.BookQueryService;
 
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
@@ -17,14 +14,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,11 +40,8 @@ public class BookResource {
 
     private final BookService bookService;
 
-    private final BookQueryService bookQueryService;
-
-    public BookResource(BookService bookService, BookQueryService bookQueryService) {
+    public BookResource(BookService bookService) {
         this.bookService = bookService;
-        this.bookQueryService = bookQueryService;
     }
 
     /**
@@ -59,7 +52,7 @@ public class BookResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/books")
-    public ResponseEntity<BookDTO> createBook(@Valid @RequestBody BookDTO bookDTO) throws URISyntaxException {
+    public ResponseEntity<BookDTO> createBook(@RequestBody BookDTO bookDTO) throws URISyntaxException {
         log.debug("REST request to save Book : {}", bookDTO);
         if (bookDTO.getId() != null) {
             throw new BadRequestAlertException("A new book cannot already have an ID", ENTITY_NAME, "idexists");
@@ -80,7 +73,7 @@ public class BookResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/books")
-    public ResponseEntity<BookDTO> updateBook(@Valid @RequestBody BookDTO bookDTO) throws URISyntaxException {
+    public ResponseEntity<BookDTO> updateBook(@RequestBody BookDTO bookDTO) throws URISyntaxException {
         log.debug("REST request to update Book : {}", bookDTO);
         if (bookDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -95,27 +88,14 @@ public class BookResource {
      * {@code GET  /books} : get all the books.
      *
      * @param pageable the pagination information.
-     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of books in body.
      */
     @GetMapping("/books")
-    public ResponseEntity<List<BookDTO>> getAllBooks(BookCriteria criteria, Pageable pageable) {
-        log.debug("REST request to get Books by criteria: {}", criteria);
-        Page<BookDTO> page = bookQueryService.findByCriteria(criteria, pageable);
+    public ResponseEntity<List<BookDTO>> getAllBooks(Pageable pageable) {
+        log.debug("REST request to get a page of Books");
+        Page<BookDTO> page = bookService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
-
-    /**
-     * {@code GET  /books/count} : count all the books.
-     *
-     * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
-     */
-    @GetMapping("/books/count")
-    public ResponseEntity<Long> countBooks(BookCriteria criteria) {
-        log.debug("REST request to count Books by criteria: {}", criteria);
-        return ResponseEntity.ok().body(bookQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -145,10 +125,10 @@ public class BookResource {
     }
 
     @GetMapping("/getBookInfo/{bookIds}")
-    public List<BookInfo> getBookInfo(@PathVariable("bookIds") List<Long> bookIds){
+    public ResponseEntity<List<BookInfo>> getBookInfo(@PathVariable("bookIds") List<Long> bookIds){
         log.debug("Got feign request!!");
         List<BookInfo> bookInfoList= bookService.getBookInfo(bookIds);
 
-        return bookInfoList;
+        return new ResponseEntity<>(bookInfoList, HttpStatus.OK);
     }
 }

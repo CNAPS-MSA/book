@@ -1,6 +1,5 @@
 package com.skcc.book.domain;
 
-import org.hibernate.annotations.AttributeAccessor;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -10,19 +9,15 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.time.LocalDate;
 
-import com.skcc.book.domain.enumeration.Classification;
-
-import com.skcc.book.domain.enumeration.BookStatus;
-
-import com.skcc.book.domain.enumeration.Location;
+import com.skcc.book.domain.enumeration.Source;
 
 /**
- * A Book.
+ * A InStockBook.
  */
 @Entity
-@Table(name = "book")
+@Table(name = "in_stock_book")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Book implements Serializable {
+public class InStockBook implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -49,33 +44,8 @@ public class Book implements Serializable {
     private LocalDate publicationDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "classification")
-    private Classification classification;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "book_status")
-    private BookStatus bookStatus;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "location")
-    private Location location;
-
-
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name="userId", column = @Column(name="user_id")),
-        @AttributeOverride(name="reservedSeqNo",column =  @Column(name="reserved_seq_no"))
-    })
-    private BookReservation bookReservation;
-
-    public BookReservation getBookReservation() {
-        return bookReservation;
-    }
-
-    public void setBookReservation(BookReservation bookReservation) {
-        this.bookReservation = bookReservation;
-    }
-
+    @Column(name = "source")
+    private Source source;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -90,7 +60,7 @@ public class Book implements Serializable {
         return title;
     }
 
-    public Book title(String title) {
+    public InStockBook title(String title) {
         this.title = title;
         return this;
     }
@@ -103,7 +73,7 @@ public class Book implements Serializable {
         return description;
     }
 
-    public Book description(String description) {
+    public InStockBook description(String description) {
         this.description = description;
         return this;
     }
@@ -116,7 +86,7 @@ public class Book implements Serializable {
         return author;
     }
 
-    public Book author(String author) {
+    public InStockBook author(String author) {
         this.author = author;
         return this;
     }
@@ -129,7 +99,7 @@ public class Book implements Serializable {
         return publisher;
     }
 
-    public Book publisher(String publisher) {
+    public InStockBook publisher(String publisher) {
         this.publisher = publisher;
         return this;
     }
@@ -142,7 +112,7 @@ public class Book implements Serializable {
         return isbn;
     }
 
-    public Book isbn(Long isbn) {
+    public InStockBook isbn(Long isbn) {
         this.isbn = isbn;
         return this;
     }
@@ -155,7 +125,7 @@ public class Book implements Serializable {
         return publicationDate;
     }
 
-    public Book publicationDate(LocalDate publicationDate) {
+    public InStockBook publicationDate(LocalDate publicationDate) {
         this.publicationDate = publicationDate;
         return this;
     }
@@ -164,43 +134,17 @@ public class Book implements Serializable {
         this.publicationDate = publicationDate;
     }
 
-    public Classification getClassification() {
-        return classification;
+    public Source getSource() {
+        return source;
     }
 
-    public Book classification(Classification classification) {
-        this.classification = classification;
+    public InStockBook source(Source source) {
+        this.source = source;
         return this;
     }
 
-    public void setClassification(Classification classification) {
-        this.classification = classification;
-    }
-
-    public BookStatus getBookStatus() {
-        return bookStatus;
-    }
-
-    public Book bookStatus(BookStatus bookStatus) {
-        this.bookStatus = bookStatus;
-        return this;
-    }
-
-    public void setBookStatus(BookStatus bookStatus) {
-        this.bookStatus = bookStatus;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public Book location(Location location) {
-        this.location = location;
-        return this;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
+    public void setSource(Source source) {
+        this.source = source;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
@@ -209,10 +153,10 @@ public class Book implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Book)) {
+        if (!(o instanceof InStockBook)) {
             return false;
         }
-        return id != null && id.equals(((Book) o).id);
+        return id != null && id.equals(((InStockBook) o).id);
     }
 
     @Override
@@ -222,7 +166,7 @@ public class Book implements Serializable {
 
     @Override
     public String toString() {
-        return "Book{" +
+        return "InStockBook{" +
             "id=" + getId() +
             ", title='" + getTitle() + "'" +
             ", description='" + getDescription() + "'" +
@@ -230,9 +174,7 @@ public class Book implements Serializable {
             ", publisher='" + getPublisher() + "'" +
             ", isbn=" + getIsbn() +
             ", publicationDate='" + getPublicationDate() + "'" +
-            ", classification='" + getClassification() + "'" +
-            ", bookStatus='" + getBookStatus() + "'" +
-            ", location='" + getLocation() + "'" +
+            ", source='" + getSource() + "'" +
             "}";
     }
 }

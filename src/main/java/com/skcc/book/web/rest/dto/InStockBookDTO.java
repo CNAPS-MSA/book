@@ -3,16 +3,12 @@ package com.skcc.book.web.rest.dto;
 import java.time.LocalDate;
 import java.io.Serializable;
 import java.util.Objects;
-
-import com.skcc.book.domain.BookReservation;
-import com.skcc.book.domain.enumeration.Classification;
-import com.skcc.book.domain.enumeration.BookStatus;
-import com.skcc.book.domain.enumeration.Location;
+import com.skcc.book.domain.enumeration.Source;
 
 /**
- * A DTO for the {@link com.skcc.book.domain.Book} entity.
+ * A DTO for the {@link com.skcc.book.domain.InStockBook} entity.
  */
-public class BookDTO implements Serializable {
+public class InStockBookDTO implements Serializable {
 
     private Long id;
 
@@ -28,21 +24,8 @@ public class BookDTO implements Serializable {
 
     private LocalDate publicationDate;
 
-    private Classification classification;
+    private Source source;
 
-    private BookStatus bookStatus;
-
-    private Location location;
-
-    private BookReservation bookReservation;
-
-    public BookReservation getBookReservation() {
-        return bookReservation;
-    }
-
-    public void setBookReservation(BookReservation bookReservation) {
-        this.bookReservation = bookReservation;
-    }
 
     public Long getId() {
         return id;
@@ -100,28 +83,12 @@ public class BookDTO implements Serializable {
         this.publicationDate = publicationDate;
     }
 
-    public Classification getClassification() {
-        return classification;
+    public Source getSource() {
+        return source;
     }
 
-    public void setClassification(Classification classification) {
-        this.classification = classification;
-    }
-
-    public BookStatus getBookStatus() {
-        return bookStatus;
-    }
-
-    public void setBookStatus(BookStatus bookStatus) {
-        this.bookStatus = bookStatus;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
+    public void setSource(Source source) {
+        this.source = source;
     }
 
     @Override
@@ -133,11 +100,11 @@ public class BookDTO implements Serializable {
             return false;
         }
 
-        BookDTO bookDTO = (BookDTO) o;
-        if (bookDTO.getId() == null || getId() == null) {
+        InStockBookDTO inStockBookDTO = (InStockBookDTO) o;
+        if (inStockBookDTO.getId() == null || getId() == null) {
             return false;
         }
-        return Objects.equals(getId(), bookDTO.getId());
+        return Objects.equals(getId(), inStockBookDTO.getId());
     }
 
     @Override
@@ -147,7 +114,7 @@ public class BookDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "BookDTO{" +
+        return "InStockBookDTO{" +
             "id=" + getId() +
             ", title='" + getTitle() + "'" +
             ", description='" + getDescription() + "'" +
@@ -155,9 +122,7 @@ public class BookDTO implements Serializable {
             ", publisher='" + getPublisher() + "'" +
             ", isbn=" + getIsbn() +
             ", publicationDate='" + getPublicationDate() + "'" +
-            ", classification='" + getClassification() + "'" +
-            ", bookStatus='" + getBookStatus() + "'" +
-            ", location='" + getLocation() + "'" +
+            ", source='" + getSource() + "'" +
             "}";
     }
 }

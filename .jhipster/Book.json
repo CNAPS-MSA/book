@@ -5,24 +5,32 @@
     "fields": [
         {
             "fieldName": "title",
-            "fieldType": "String",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
-            "fieldName": "author",
-            "fieldType": "String",
-            "fieldValidateRules": [
-                "required"
-            ]
+            "fieldType": "String"
         },
         {
             "fieldName": "description",
-            "fieldType": "String",
-            "fieldValidateRules": [
-                "required"
-            ]
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "author",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "publisher",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "isbn",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "publicationDate",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "classification",
+            "fieldType": "Classification",
+            "fieldValues": "Arts,Photography,Biographies,BusinessMoney,Children,ComputerTechnology,History,Medical,Travel,Romance,Science,Math,SelfHelp"
         },
         {
             "fieldName": "bookStatus",
@@ -30,13 +38,13 @@
             "fieldValues": "AVAILABLE,UNAVAILABLE"
         },
         {
-            "fieldName": "category",
-            "fieldType": "Categories",
-            "fieldValues": "IT,LITERATURE,HISTORY,SCIENCE,ART,LANGUAGE"
+            "fieldName": "location",
+            "fieldType": "Location",
+            "fieldValues": "JEONGJA,PANGYO"
         },
         {
-            "fieldName": "barcode",
-            "fieldType": "Integer"
+          "fieldName": "bookReservation",
+          "fieldType": "BookReservation"
         }
     ],
     "changelogDate": "20200506084946",
@@ -46,7 +54,10 @@
     "entityTableName": "book",
     "databaseType": "sql",
     "readOnly": false,
-    "jpaMetamodelFiltering": true,
+    "jpaMetamodelFiltering": false,
     "pagination": "pagination",
-    "microserviceName": "book"
+    "microserviceName": "book",
+    "name": "Book",
+    "embedded": false,
+    "applications": "*"
 }
