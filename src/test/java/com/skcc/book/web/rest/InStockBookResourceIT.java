@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.skcc.book.domain.enumeration.Source;
 /**
- * Integration tests for the {@link InStockBookResource} REST controller.
+ * Integration tests for the {@link BookResource} REST controller.
  */
 @SpringBootTest(classes = BookApp.class)
 

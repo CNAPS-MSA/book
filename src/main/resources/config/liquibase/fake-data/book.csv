@@ -1,11 +1,11 @@
-id;title;description;author;publisher;isbn;publication_date;classification;book_status;location
-1;Handmade Cotton Table CSS;Mayotte Dynamic SAS;digital forecast Bahrain;Principal Baht radical;78204;2020-05-05;Arts;UNAVAILABLE;JEONGJA
-2;ADP Texas auxiliary;Pula redefine Paradigm;Optimization secondary driver;Soft Alaska;2840;2020-05-06;Biographies;AVAILABLE;PANGYO
-3;cross-platform;Consultant XML methodologies;orchestrate application Port;payment Small Soft Keyboard;49455;2020-05-05;Travel;AVAILABLE;JEONGJA
-4;Czech Koruna;Soap Producer hard drive;mobile Product programming;Checking Account Industrial;71630;2020-05-05;Science;AVAILABLE;JEONGJA
-5;parse world-class Nebraska;South Carolina;interface;Som;89992;2020-05-06;Arts;AVAILABLE;PANGYO
-6;backing up;Auto Loan Account generate Health;Cambridgeshire;circuit Planner optical;52271;2020-05-05;Medical;AVAILABLE;PANGYO
-7;Oregon HDD;wireless Netherlands networks;copying Rand Namibia Dollar;methodical Concrete Saint Helena Pound;96202;2020-05-06;SelfHelp;UNAVAILABLE;PANGYO
-8;Western Sahara program Technician;digital vortals initiatives;composite;Iceland Avon;76508;2020-05-06;History;AVAILABLE;PANGYO
-9;Computers;Sausages Tuna;Soft Berkshire Morocco;California;9917;2020-05-06;History;UNAVAILABLE;JEONGJA
-10;quantify;olive;Coordinator;Costa Rica green;76484;2020-05-05;Arts;AVAILABLE;JEONGJA
+id;title;description;author;publisher;isbn;publication_date;classification;book_status;location;book_reservation;
+1;Handmade Cotton Table CSS;Mayotte Dynamic SAS;digital forecast Bahrain;Principal Baht radical;78204;2020-05-05;Arts;UNAVAILABLE;JEONGJA;
+2;ADP Texas auxiliary;Pula redefine Paradigm;Optimization secondary driver;Soft Alaska;2840;2020-05-06;Biographies;AVAILABLE;PANGYO;
+3;cross-platform;Consultant XML methodologies;orchestrate application Port;payment Small Soft Keyboard;49455;2020-05-05;Travel;AVAILABLE;JEONGJA;
+4;Czech Koruna;Soap Producer hard drive;mobile Product programming;Checking Account Industrial;71630;2020-05-05;Science;AVAILABLE;JEONGJA;
+5;parse world-class Nebraska;South Carolina;interface;Som;89992;2020-05-06;Arts;AVAILABLE;PANGYO;
+6;backing up;Auto Loan Account generate Health;Cambridgeshire;circuit Planner optical;52271;2020-05-05;Medical;AVAILABLE;PANGYO;
+7;Oregon HDD;wireless Netherlands networks;copying Rand Namibia Dollar;methodical Concrete Saint Helena Pound;96202;2020-05-06;SelfHelp;UNAVAILABLE;PANGYO;
+8;Western Sahara program Technician;digital vortals initiatives;composite;Iceland Avon;76508;2020-05-06;History;AVAILABLE;PANGYO;
+9;Computers;Sausages Tuna;Soft Berkshire Morocco;California;9917;2020-05-06;History;UNAVAILABLE;JEONGJA;
+10;quantify;olive;Coordinator;Costa Rica green;76484;2020-05-05;Arts;AVAILABLE;JEONGJA;

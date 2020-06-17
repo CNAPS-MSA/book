@@ -43,10 +43,7 @@
             <column name="location" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="user_id" type="bigint">
-                <constraints nullable="true" />
-            </column>
-            <column name="reserved_seq_no" type="bigint">
+            <column name="book_reservation" type="varchar(4000)">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
@@ -81,8 +78,7 @@
             <column name="classification" type="string"/>
             <column name="book_status" type="string"/>
             <column name="location" type="string"/>
-            <column name="user_id" type="numeric"/>
-            <column name="reserved_seq_no" type="numeric"/>
+            <column name ="book_reservation" type="string"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>

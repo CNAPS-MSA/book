@@ -2,12 +2,17 @@ package com.skcc.book.web.rest.dto;
 
 import java.time.LocalDate;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import com.skcc.book.domain.BookReservation;
+import com.skcc.book.domain.converter.BookReservationConverter;
 import com.skcc.book.domain.enumeration.Classification;
 import com.skcc.book.domain.enumeration.BookStatus;
 import com.skcc.book.domain.enumeration.Location;
+
+import javax.persistence.Convert;
 
 /**
  * A DTO for the {@link com.skcc.book.domain.Book} entity.
@@ -34,14 +39,15 @@ public class BookDTO implements Serializable {
 
     private Location location;
 
-    private BookReservation bookReservation;
+    @Convert(converter = BookReservationConverter.class)
+    private Set<BookReservation> bookReservations;
 
-    public BookReservation getBookReservation() {
-        return bookReservation;
+    public Set<BookReservation> getBookReservations() {
+        return bookReservations;
     }
 
-    public void setBookReservation(BookReservation bookReservation) {
-        this.bookReservation = bookReservation;
+    public void setBookReservations(Set<BookReservation> bookReservations) {
+        this.bookReservations = bookReservations;
     }
 
     public Long getId() {
@@ -158,6 +164,7 @@ public class BookDTO implements Serializable {
             ", classification='" + getClassification() + "'" +
             ", bookStatus='" + getBookStatus() + "'" +
             ", location='" + getLocation() + "'" +
+            ", bookReservations='" +getBookReservations()+"'"+
             "}";
     }
 }

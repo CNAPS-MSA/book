@@ -1,20 +1,24 @@
 package com.skcc.book.domain;
 
-import org.hibernate.annotations.AttributeAccessor;
+import com.skcc.book.domain.converter.BookReservationConverter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 
 import java.io.Serializable;
-import java.util.Objects;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Set;
 
 import com.skcc.book.domain.enumeration.Classification;
 
 import com.skcc.book.domain.enumeration.BookStatus;
 
 import com.skcc.book.domain.enumeration.Location;
+import org.hibernate.annotations.Cascade;
 
 /**
  * A Book.
@@ -61,21 +65,29 @@ public class Book implements Serializable {
     private Location location;
 
 
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name="userId", column = @Column(name="user_id")),
-        @AttributeOverride(name="reservedSeqNo",column =  @Column(name="reserved_seq_no"))
-    })
-    private BookReservation bookReservation;
+    @Convert(converter = BookReservationConverter.class)
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @Column(name="book_reservation")
+    private Set<BookReservation> bookReservations= new HashSet<>();
 
-    public BookReservation getBookReservation() {
-        return bookReservation;
+    public Set<BookReservation> getbookReservations() {
+        return bookReservations;
     }
 
-    public void setBookReservation(BookReservation bookReservation) {
-        this.bookReservation = bookReservation;
+    public Book bookReservations(Set<BookReservation> bookReservations) {
+        this.bookReservations = bookReservations;
+        return this;
     }
 
+    public Book addBookReservation(BookReservation bookReservation) {
+        this.bookReservations.add(bookReservation);
+        return this;
+    }
+
+    public Book removeBookReservation(BookReservation bookReservation) {
+        this.bookReservations.remove(bookReservation);
+        return this;
+    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -233,6 +245,22 @@ public class Book implements Serializable {
             ", classification='" + getClassification() + "'" +
             ", bookStatus='" + getBookStatus() + "'" +
             ", location='" + getLocation() + "'" +
+            ", bookReservations=" + getbookReservations()+"'"+
             "}";
+    }
+
+    public boolean checkReservationContains(Long userId){
+        return this.getbookReservations().stream().allMatch(b -> b.getUserId().equals(userId));
+    }
+
+    public boolean isFirstReservation(Long userId){
+        return Objects.equals(this.getbookReservations().stream()
+            .sorted(Comparator.comparing(BookReservation::getReservedSeqNo)).findFirst().get().getUserId(), userId);
+    }
+
+    public Book removeBookReservationByUserId(Long userId){
+        BookReservation bookReservation = this.getbookReservations().stream().filter(b -> b.getUserId().equals(userId)).findAny().get();
+        return this.removeBookReservation(bookReservation);
+
     }
 }

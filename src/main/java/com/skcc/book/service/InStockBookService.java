@@ -1,5 +1,6 @@
 package com.skcc.book.service;
 
+import com.skcc.book.domain.InStockBook;
 import com.skcc.book.web.rest.dto.InStockBookDTO;
 
 import org.springframework.data.domain.Page;
@@ -15,10 +16,10 @@ public interface InStockBookService {
     /**
      * Save a inStockBook.
      *
-     * @param inStockBookDTO the entity to save.
+     * @param inStockBook the entity to save.
      * @return the persisted entity.
      */
-    InStockBookDTO save(InStockBookDTO inStockBookDTO);
+    InStockBook save(InStockBook inStockBook);
 
     /**
      * Get all the inStockBooks.
@@ -34,7 +35,7 @@ public interface InStockBookService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<InStockBookDTO> findOne(Long id);
+    InStockBook findOne(Long id);
 
     /**
      * Delete the "id" inStockBook.

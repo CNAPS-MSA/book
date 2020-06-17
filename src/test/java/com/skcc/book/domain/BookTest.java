@@ -19,4 +19,5 @@ public class BookTest {
         book1.setId(null);
         assertThat(book1).isNotEqualTo(book2);
     }
+
 }

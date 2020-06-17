@@ -4,6 +4,7 @@ import com.skcc.book.service.InStockBookService;
 import com.skcc.book.web.rest.errors.BadRequestAlertException;
 import com.skcc.book.web.rest.dto.InStockBookDTO;
 
+import com.skcc.book.web.rest.mapper.InStockBookMapper;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link com.skcc.book.domain.InStockBook}.
@@ -37,9 +37,10 @@ public class InStockBookResource {
     private String applicationName;
 
     private final InStockBookService inStockBookService;
-
-    public InStockBookResource(InStockBookService inStockBookService) {
+    private final InStockBookMapper inStockBookMapper;
+    public InStockBookResource(InStockBookService inStockBookService, InStockBookMapper inStockBookMapper) {
         this.inStockBookService = inStockBookService;
+        this.inStockBookMapper = inStockBookMapper;
     }
 
     /**
@@ -52,10 +53,11 @@ public class InStockBookResource {
     @PostMapping("/in-stock-books")
     public ResponseEntity<InStockBookDTO> createInStockBook(@RequestBody InStockBookDTO inStockBookDTO) throws URISyntaxException {
         log.debug("REST request to save InStockBook : {}", inStockBookDTO);
+
         if (inStockBookDTO.getId() != null) {
             throw new BadRequestAlertException("A new inStockBook cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        InStockBookDTO result = inStockBookService.save(inStockBookDTO);
+        InStockBookDTO result = inStockBookMapper.toDto(inStockBookService.save(inStockBookMapper.toEntity(inStockBookDTO)));
         return ResponseEntity.created(new URI("/api/in-stock-books/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -76,7 +78,7 @@ public class InStockBookResource {
         if (inStockBookDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        InStockBookDTO result = inStockBookService.save(inStockBookDTO);
+        InStockBookDTO result = inStockBookMapper.toDto(inStockBookService.save(inStockBookMapper.toEntity(inStockBookDTO)));
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, inStockBookDTO.getId().toString()))
             .body(result);
@@ -105,8 +107,8 @@ public class InStockBookResource {
     @GetMapping("/in-stock-books/{id}")
     public ResponseEntity<InStockBookDTO> getInStockBook(@PathVariable Long id) {
         log.debug("REST request to get InStockBook : {}", id);
-        Optional<InStockBookDTO> inStockBookDTO = inStockBookService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(inStockBookDTO);
+        InStockBookDTO inStockBookDTO = inStockBookMapper.toDto(inStockBookService.findOne(id));
+        return ResponseEntity.ok().body(inStockBookDTO);
     }
 
     /**

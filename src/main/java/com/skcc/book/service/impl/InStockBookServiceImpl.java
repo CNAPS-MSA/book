@@ -36,15 +36,13 @@ public class InStockBookServiceImpl implements InStockBookService {
     /**
      * Save a inStockBook.
      *
-     * @param inStockBookDTO the entity to save.
+     * @param inStockBook the entity to save.
      * @return the persisted entity.
      */
     @Override
-    public InStockBookDTO save(InStockBookDTO inStockBookDTO) {
-        log.debug("Request to save InStockBook : {}", inStockBookDTO);
-        InStockBook inStockBook = inStockBookMapper.toEntity(inStockBookDTO);
-        inStockBook = inStockBookRepository.save(inStockBook);
-        return inStockBookMapper.toDto(inStockBook);
+    public InStockBook save(InStockBook inStockBook) {
+        log.debug("Request to save InStockBook : {}", inStockBook);
+        return inStockBookRepository.save(inStockBook);
     }
 
     /**
@@ -69,10 +67,9 @@ public class InStockBookServiceImpl implements InStockBookService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<InStockBookDTO> findOne(Long id) {
+    public InStockBook findOne(Long id) {
         log.debug("Request to get InStockBook : {}", id);
-        return inStockBookRepository.findById(id)
-            .map(inStockBookMapper::toDto);
+        return inStockBookRepository.findById(id).get();
     }
 
     /**

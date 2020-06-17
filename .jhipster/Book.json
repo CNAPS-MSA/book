@@ -41,10 +41,6 @@
             "fieldName": "location",
             "fieldType": "Location",
             "fieldValues": "JEONGJA,PANGYO"
-        },
-        {
-          "fieldName": "bookReservation",
-          "fieldType": "BookReservation"
         }
     ],
     "changelogDate": "20200506084946",

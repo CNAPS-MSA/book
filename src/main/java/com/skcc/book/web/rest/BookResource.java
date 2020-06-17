@@ -1,17 +1,23 @@
 package com.skcc.book.web.rest;
 
+import com.skcc.book.domain.Book;
+import com.skcc.book.domain.InStockBook;
 import com.skcc.book.service.BookService;
+import com.skcc.book.service.InStockBookService;
 import com.skcc.book.web.rest.dto.BookInfo;
+import com.skcc.book.web.rest.dto.InStockBookDTO;
 import com.skcc.book.web.rest.errors.BadRequestAlertException;
 import com.skcc.book.web.rest.dto.BookDTO;
 
+import com.skcc.book.web.rest.mapper.BookMapper;
+import com.skcc.book.web.rest.mapper.InStockBookMapper;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link com.skcc.book.domain.Book}.
@@ -39,9 +44,16 @@ public class BookResource {
     private String applicationName;
 
     private final BookService bookService;
+    private final InStockBookService inStockBookService;
+    private final InStockBookMapper inStockBookMapper;
+    private final BookMapper bookMapper;
 
-    public BookResource(BookService bookService) {
+
+    public BookResource(BookService bookService, InStockBookService inStockBookService, InStockBookMapper inStockBookMapper, BookMapper bookMapper) {
         this.bookService = bookService;
+        this.inStockBookService = inStockBookService;
+        this.inStockBookMapper = inStockBookMapper;
+        this.bookMapper = bookMapper;
     }
 
     /**
@@ -57,7 +69,7 @@ public class BookResource {
         if (bookDTO.getId() != null) {
             throw new BadRequestAlertException("A new book cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        BookDTO result = bookService.save(bookDTO);
+        BookDTO result = bookMapper.toDto(bookService.save(bookMapper.toEntity(bookDTO)));
         return ResponseEntity.created(new URI("/api/books/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -78,7 +90,7 @@ public class BookResource {
         if (bookDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        BookDTO result = bookService.save(bookDTO);
+        BookDTO result = bookMapper.toDto(bookService.save(bookMapper.toEntity(bookDTO)));
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, bookDTO.getId().toString()))
             .body(result);
@@ -93,9 +105,10 @@ public class BookResource {
     @GetMapping("/books")
     public ResponseEntity<List<BookDTO>> getAllBooks(Pageable pageable) {
         log.debug("REST request to get a page of Books");
-        Page<BookDTO> page = bookService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        Page<Book> page = bookService.findAll(pageable);
+        List<BookDTO> bookDTOS = bookMapper.toDto(page.getContent());
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), new PageImpl<>(bookDTOS));
+        return ResponseEntity.ok().headers(headers).body(bookDTOS);
     }
 
     /**
@@ -107,8 +120,10 @@ public class BookResource {
     @GetMapping("/books/{id}")
     public ResponseEntity<BookDTO> getBook(@PathVariable Long id) {
         log.debug("REST request to get Book : {}", id);
-        Optional<BookDTO> bookDTO = bookService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(bookDTO);
+        BookDTO bookDTO = bookMapper.toDto(bookService.findOne(id).get());
+        bookService.findOne(id).get().getbookReservations().forEach(b-> System.out.println(b.getUserId()+" and "+b.getReservedSeqNo()));
+        bookDTO.getBookReservations().forEach(b-> System.out.println("DTO: "+b.getUserId()+" and "+b.getReservedSeqNo()));
+        return ResponseEntity.ok().body(bookDTO);
     }
 
     /**
@@ -124,11 +139,32 @@ public class BookResource {
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
 
-    @GetMapping("/getBookInfo/{bookIds}")
-    public ResponseEntity<List<BookInfo>> getBookInfo(@PathVariable("bookIds") List<Long> bookIds){
+    @GetMapping("/getBookInfo/{bookIds}/{userid}")
+    public ResponseEntity<List<BookInfo>> getBookInfo(@PathVariable("bookIds") List<Long> bookIds, @PathVariable("userid")Long userid){
         log.debug("Got feign request!!");
-        List<BookInfo> bookInfoList= bookService.getBookInfo(bookIds);
-
+        List<BookInfo> bookInfoList= bookService.getBookInfo(bookIds, userid);
+        log.debug(bookInfoList.toString());
         return new ResponseEntity<>(bookInfoList, HttpStatus.OK);
     }
+    /********
+     *
+     * Register in stock books
+     *
+     * ******/
+
+
+    /****
+     *
+     *
+     * Register a new book from in stock book
+     *
+     *
+     * ***/
+
+
+
+
+
+
+
 }
