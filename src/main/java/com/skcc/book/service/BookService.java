@@ -1,5 +1,6 @@
 package com.skcc.book.service;
 
+import com.skcc.book.domain.Book;
 import com.skcc.book.web.rest.dto.BookDTO;
 
 import com.skcc.book.web.rest.dto.BookInfo;
@@ -17,10 +18,10 @@ public interface BookService {
     /**
      * Save a book.
      *
-     * @param bookDTO the entity to save.
+     * @param book the entity to save.
      * @return the persisted entity.
      */
-    BookDTO save(BookDTO bookDTO);
+    Book save(Book book);
 
     /**
      * Get all the books.
@@ -28,7 +29,7 @@ public interface BookService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<BookDTO> findAll(Pageable pageable);
+    Page<Book> findAll(Pageable pageable);
 
     /**
      * Get the "id" book.
@@ -36,7 +37,7 @@ public interface BookService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<BookDTO> findOne(Long id);
+    Optional<Book> findOne(Long id);
 
     /**
      * Delete the "id" book.
@@ -45,5 +46,7 @@ public interface BookService {
      */
     void delete(Long id);
 
-    List<BookInfo> getBookInfo(List<Long> bookIds);
+    List<BookInfo> getBookInfo(List<Long> bookIds, Long userId);
+
+    Book makeReservation(Book book, Long userId, Long bookResCnt);
 }

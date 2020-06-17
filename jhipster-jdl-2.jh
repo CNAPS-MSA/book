@@ -1,0 +1,66 @@
+entity Book {
+	title String,
+    description String,
+    author String,
+    publisher String,
+    isbn Long,
+    publicationDate LocalDate,
+    classification Classification,
+    bookStatus BookStatus,
+    location Location
+}
+
+
+entity InStockBook {
+	title String,
+    description String,
+    author String,
+    publisher String,
+    isbn Long,
+    publicationDate LocalDate,
+    source Source
+}
+
+// an ignored comment
+/** not an ignored comment */
+enum Classification {
+	Arts,
+    Photography,
+  	Biographies,
+    BusinessMoney,
+    Children,
+    ComputerTechnology,
+    History,
+    Medical,
+    Travel,
+    Romance,
+    Science,
+    Math,
+    SelfHelp
+}
+
+enum BookStatus{
+	AVAILABLE,
+    UNAVAILABLE
+}
+
+enum Source{
+	Donated,
+    Purchased
+}
+
+enum Location{
+	JEONGJA,
+    PANGYO
+}
+// Set pagination options
+paginate * with pagination
+
+// Use Data Transfert Objects (DTO)
+dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl
+
+// Set an angular suffix
+// angularSuffix * with mySuffix
