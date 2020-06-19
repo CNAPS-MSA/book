@@ -1,6 +1,7 @@
 package com.skcc.book.service.impl;
 
 import com.skcc.book.domain.BookReservation;
+import com.skcc.book.domain.converter.BookReservationConverter;
 import com.skcc.book.domain.enumeration.BookStatus;
 import com.skcc.book.service.BookService;
 import com.skcc.book.domain.Book;
@@ -82,7 +83,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<BookInfo> getBookInfo(List<Long> bookIds, Long userId) {
         List<BookInfo> bookInfoList = new ArrayList<>();
         for(Long bookId: bookIds){
@@ -108,13 +109,12 @@ public class BookServiceImpl implements BookService {
                     System.out.println("book Reservation Size:"+ book.getbookReservations().size());
                     //log.debug("book Reservation Size:", book.getbookReservations().size());
                 }
-
-
         }
         return bookInfoList;
     }
     //책의 예약자 목록에 추가
     @Override
+    @Transactional
     public Book makeReservation(Book book, Long userId, Long bookResCnt) {
 
         book=book.addBookReservation(new BookReservation(userId, bookResCnt+1));
@@ -124,7 +124,10 @@ public class BookServiceImpl implements BookService {
         return book;
     }
 
-
+    @Override
+    public Book getBooks(Long bookId) {
+        return bookRepository.findById(bookId).get();
+    }
 
 
 }

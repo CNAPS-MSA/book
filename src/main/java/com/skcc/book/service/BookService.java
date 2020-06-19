@@ -49,4 +49,6 @@ public interface BookService {
     List<BookInfo> getBookInfo(List<Long> bookIds, Long userId);
 
     Book makeReservation(Book book, Long userId, Long bookResCnt);
+
+    Book getBooks(Long bookId);
 }

@@ -9,7 +9,7 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.util.Set;
 
-@Converter
+@Converter(autoApply = true)
 public class BookReservationConverter implements AttributeConverter<Set<BookReservation>, String> {
     private ObjectMapper om = new ObjectMapper();
 
