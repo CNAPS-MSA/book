@@ -23,6 +23,7 @@ import org.hibernate.annotations.Cascade;
 /**
  * A Book.
  */
+
 @Entity
 @Table(name = "book")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -263,4 +264,5 @@ public class Book implements Serializable {
         return this.removeBookReservation(bookReservation);
 
     }
+
 }

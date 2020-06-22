@@ -1,11 +1,13 @@
 package com.skcc.book.web.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.skcc.book.domain.Book;
-import com.skcc.book.domain.InStockBook;
+import com.skcc.book.domain.converter.BookReservationConverter;
+import com.skcc.book.domain.enumeration.Source;
+import com.skcc.book.repository.BookRepository;
 import com.skcc.book.service.BookService;
 import com.skcc.book.service.InStockBookService;
 import com.skcc.book.web.rest.dto.BookInfo;
-import com.skcc.book.web.rest.dto.InStockBookDTO;
 import com.skcc.book.web.rest.errors.BadRequestAlertException;
 import com.skcc.book.web.rest.dto.BookDTO;
 
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * REST controller for managing {@link com.skcc.book.domain.Book}.
@@ -47,7 +50,6 @@ public class BookResource {
     private final InStockBookService inStockBookService;
     private final InStockBookMapper inStockBookMapper;
     private final BookMapper bookMapper;
-
 
     public BookResource(BookService bookService, InStockBookService inStockBookService, InStockBookMapper inStockBookMapper, BookMapper bookMapper) {
         this.bookService = bookService;
@@ -69,7 +71,13 @@ public class BookResource {
         if (bookDTO.getId() != null) {
             throw new BadRequestAlertException("A new book cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        BookDTO result = bookMapper.toDto(bookService.save(bookMapper.toEntity(bookDTO)));
+        Book newBook = bookService.save(bookMapper.toEntity(bookDTO));
+        try {
+            bookService.sendBookCatalogEvent("NEW_BOOK",newBook.getId()); //send kafka - bookcatalog
+        } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        BookDTO result = bookMapper.toDto(newBook);
         return ResponseEntity.created(new URI("/api/books/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -120,8 +128,9 @@ public class BookResource {
     @GetMapping("/books/{id}")
     public ResponseEntity<BookDTO> getBook(@PathVariable Long id) {
         log.debug("REST request to get Book : {}", id);
-        BookDTO bookDTO = bookMapper.toDto(bookService.findOne(id).get());
         bookService.findOne(id).get().getbookReservations().forEach(b-> System.out.println(b.getUserId()+" and "+b.getReservedSeqNo()));
+        BookDTO bookDTO = bookMapper.toDto(bookService.findOne(id).get());
+
         bookDTO.getBookReservations().forEach(b-> System.out.println("DTO: "+b.getUserId()+" and "+b.getReservedSeqNo()));
         return ResponseEntity.ok().body(bookDTO);
     }
@@ -135,6 +144,11 @@ public class BookResource {
     @DeleteMapping("/books/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         log.debug("REST request to delete Book : {}", id);
+        try {
+            bookService.sendBookCatalogEvent("DELETE_BOOK", id);
+        } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
+            e.printStackTrace();
+        }
         bookService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
@@ -144,7 +158,15 @@ public class BookResource {
         log.debug("Got feign request!!");
         List<BookInfo> bookInfoList= bookService.getBookInfo(bookIds, userid);
         log.debug(bookInfoList.toString());
-        return new ResponseEntity<>(bookInfoList, HttpStatus.OK);
+        return ResponseEntity.ok().body(bookInfoList);
+    }
+
+    @GetMapping("/getBook/{bookId}")
+    public ResponseEntity<Book> getBooks(@PathVariable("bookId")Long bookId){
+        Book book = bookService.getBooks(bookId);
+        System.out.println("book Reservation: " + book.getbookReservations().size());
+        book.getbookReservations().forEach(b-> System.out.println("userId: "+ b.getUserId() +" reqNo: "+ b.getReservedSeqNo()));
+        return ResponseEntity.ok().body(book);
     }
     /********
      *
