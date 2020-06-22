@@ -1,7 +1,7 @@
 package com.skcc.book.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.skcc.book.domain.Book;
-import com.skcc.book.web.rest.dto.BookDTO;
 
 import com.skcc.book.web.rest.dto.BookInfo;
 import org.springframework.data.domain.Page;
@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Service Interface for managing {@link com.skcc.book.domain.Book}.
@@ -51,4 +52,6 @@ public interface BookService {
     Book makeReservation(Book book, Long userId, Long bookResCnt);
 
     Book getBooks(Long bookId);
+
+    void sendBookCatalogEvent(String eventType, Long bookId) throws InterruptedException, ExecutionException, JsonProcessingException;
 }

@@ -1,5 +1,6 @@
 package com.skcc.book.web.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.skcc.book.domain.Book;
 import com.skcc.book.domain.converter.BookReservationConverter;
 import com.skcc.book.domain.enumeration.Source;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * REST controller for managing {@link com.skcc.book.domain.Book}.
@@ -69,7 +71,13 @@ public class BookResource {
         if (bookDTO.getId() != null) {
             throw new BadRequestAlertException("A new book cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        BookDTO result = bookMapper.toDto(bookService.save(bookMapper.toEntity(bookDTO)));
+        Book newBook = bookService.save(bookMapper.toEntity(bookDTO));
+        try {
+            bookService.sendBookCatalogEvent("NEW_BOOK",newBook.getId()); //send kafka - bookcatalog
+        } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        BookDTO result = bookMapper.toDto(newBook);
         return ResponseEntity.created(new URI("/api/books/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -136,6 +144,11 @@ public class BookResource {
     @DeleteMapping("/books/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         log.debug("REST request to delete Book : {}", id);
+        try {
+            bookService.sendBookCatalogEvent("DELETE_BOOK", id);
+        } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
+            e.printStackTrace();
+        }
         bookService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }

@@ -1,7 +1,9 @@
 package com.skcc.book.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.skcc.book.adaptor.BookKafkaProducer;
+import com.skcc.book.domain.BookCatalogEvent;
 import com.skcc.book.domain.BookReservation;
-import com.skcc.book.domain.converter.BookReservationConverter;
 import com.skcc.book.domain.enumeration.BookStatus;
 import com.skcc.book.service.BookService;
 import com.skcc.book.domain.Book;
@@ -15,7 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Service Implementation for managing {@link Book}.
@@ -28,9 +32,13 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
 
+    private final BookKafkaProducer bookKafkaProducer;
 
-    public BookServiceImpl(BookRepository bookRepository) {
+    private static final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    public BookServiceImpl(BookRepository bookRepository, BookKafkaProducer bookKafkaProducer) {
         this.bookRepository = bookRepository;
+        this.bookKafkaProducer = bookKafkaProducer;
     }
 
     /**
@@ -127,6 +135,28 @@ public class BookServiceImpl implements BookService {
     @Override
     public Book getBooks(Long bookId) {
         return bookRepository.findById(bookId).get();
+    }
+
+    @Override
+    public void sendBookCatalogEvent(String eventType,Long bookId) throws InterruptedException, ExecutionException, JsonProcessingException {
+        Book book = bookRepository.findById(bookId).get();
+        if(eventType.equals("NEW_BOOK")) {
+            BookCatalogEvent bookCatalogEvent = new BookCatalogEvent();
+            bookCatalogEvent.setAuthor(book.getAuthor());
+            bookCatalogEvent.setClassification(book.getClassification().toString());
+            bookCatalogEvent.setDescription(book.getDescription());
+            bookCatalogEvent.setPublicationDate(book.getPublicationDate().format(fmt));
+            bookCatalogEvent.setTitle(book.getTitle());
+            bookCatalogEvent.setEventType(eventType);
+            bookCatalogEvent.setRented(!book.getBookStatus().equals(BookStatus.AVAILABLE));
+            bookCatalogEvent.setRentCnt((long) 0);
+            bookKafkaProducer.sendBookCreateEvent(bookCatalogEvent);
+        }else if(eventType.equals("DELETE_BOOK")){
+            BookCatalogEvent bookCatalogEvent = new BookCatalogEvent();
+            bookCatalogEvent.setEventType(eventType);
+            bookCatalogEvent.setTitle(book.getTitle());
+            bookKafkaProducer.sendBookDeleteEvent(bookCatalogEvent);
+        }
     }
 
 
