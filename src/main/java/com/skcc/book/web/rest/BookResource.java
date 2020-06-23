@@ -98,7 +98,13 @@ public class BookResource {
         if (bookDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        BookDTO result = bookMapper.toDto(bookService.save(bookMapper.toEntity(bookDTO)));
+        Book book = bookService.save(bookMapper.toEntity(bookDTO));
+        try {
+            bookService.sendBookCatalogEvent("UPDATE_BOOK",book.getId()); //send kafka - bookcatalog
+        } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        BookDTO result = bookMapper.toDto(book);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, bookDTO.getId().toString()))
             .body(result);

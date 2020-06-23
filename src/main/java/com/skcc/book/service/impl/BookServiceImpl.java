@@ -110,9 +110,14 @@ public class BookServiceImpl implements BookService {
                     }
                 }
                 else{ //대여 불가능 상태
-                    if (!book.checkReservationContains(userId)) { //예약자 리스트에 없으면
-                        log.debug("check Reservation", false);
-                       book= makeReservation(book, userId, (long) book.getbookReservations().size()); //리스트에 추가
+                    if(book.getbookReservations().size()>0) {
+                        if (!book.checkReservationContains(userId)) { //예약자 리스트에 없으면
+                            log.debug("check Reservation", false);
+                            book = makeReservation(book, userId, (long) book.getbookReservations().size()); //리스트에 추가
+                        }
+                    }else{
+                        book = book.bookReservations(new HashSet<>());
+                        book = makeReservation(book, userId, (long) book.getbookReservations().size());
                     }
                     System.out.println("book Reservation Size:"+ book.getbookReservations().size());
                     //log.debug("book Reservation Size:", book.getbookReservations().size());
@@ -140,8 +145,9 @@ public class BookServiceImpl implements BookService {
     @Override
     public void sendBookCatalogEvent(String eventType,Long bookId) throws InterruptedException, ExecutionException, JsonProcessingException {
         Book book = bookRepository.findById(bookId).get();
-        if(eventType.equals("NEW_BOOK")) {
-            BookCatalogEvent bookCatalogEvent = new BookCatalogEvent();
+        BookCatalogEvent bookCatalogEvent = new BookCatalogEvent();
+        if(eventType.equals("NEW_BOOK") || eventType.equals("UPDATE_BOOK")) {
+
             bookCatalogEvent.setAuthor(book.getAuthor());
             bookCatalogEvent.setClassification(book.getClassification().toString());
             bookCatalogEvent.setDescription(book.getDescription());
@@ -152,7 +158,6 @@ public class BookServiceImpl implements BookService {
             bookCatalogEvent.setRentCnt((long) 0);
             bookKafkaProducer.sendBookCreateEvent(bookCatalogEvent);
         }else if(eventType.equals("DELETE_BOOK")){
-            BookCatalogEvent bookCatalogEvent = new BookCatalogEvent();
             bookCatalogEvent.setEventType(eventType);
             bookCatalogEvent.setTitle(book.getTitle());
             bookKafkaProducer.sendBookDeleteEvent(bookCatalogEvent);
