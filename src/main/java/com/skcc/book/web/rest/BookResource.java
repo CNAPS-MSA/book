@@ -134,10 +134,7 @@ public class BookResource {
     @GetMapping("/books/{id}")
     public ResponseEntity<BookDTO> getBook(@PathVariable Long id) {
         log.debug("REST request to get Book : {}", id);
-        bookService.findOne(id).get().getbookReservations().forEach(b-> System.out.println(b.getUserId()+" and "+b.getReservedSeqNo()));
         BookDTO bookDTO = bookMapper.toDto(bookService.findOne(id).get());
-
-        bookDTO.getBookReservations().forEach(b-> System.out.println("DTO: "+b.getUserId()+" and "+b.getReservedSeqNo()));
         return ResponseEntity.ok().body(bookDTO);
     }
 
@@ -170,8 +167,6 @@ public class BookResource {
     @GetMapping("/getBook/{bookId}")
     public ResponseEntity<Book> getBooks(@PathVariable("bookId")Long bookId){
         Book book = bookService.getBooks(bookId);
-        System.out.println("book Reservation: " + book.getbookReservations().size());
-        book.getbookReservations().forEach(b-> System.out.println("userId: "+ b.getUserId() +" reqNo: "+ b.getReservedSeqNo()));
         return ResponseEntity.ok().body(book);
     }
     /********

@@ -1,6 +1,9 @@
 package com.skcc.book.domain;
 
 import com.skcc.book.domain.converter.BookReservationConverter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -27,6 +30,8 @@ import org.hibernate.annotations.Cascade;
 @Entity
 @Table(name = "book")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Data
+@ToString
 public class Book implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -71,9 +76,6 @@ public class Book implements Serializable {
     @Column(name="book_reservation")
     private Set<BookReservation> bookReservations= new HashSet<>();
 
-    public Set<BookReservation> getbookReservations() {
-        return bookReservations;
-    }
 
     public Book bookReservations(Set<BookReservation> bookReservations) {
         this.bookReservations = bookReservations;
@@ -91,29 +93,10 @@ public class Book implements Serializable {
     }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
 
     public Book title(String title) {
         this.title = title;
         return this;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public Book description(String description) {
@@ -121,100 +104,48 @@ public class Book implements Serializable {
         return this;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
 
     public Book author(String author) {
         this.author = author;
         return this;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public String getPublisher() {
-        return publisher;
-    }
 
     public Book publisher(String publisher) {
         this.publisher = publisher;
         return this;
     }
 
-    public void setPublisher(String publisher) {
-        this.publisher = publisher;
-    }
-
-    public Long getIsbn() {
-        return isbn;
-    }
 
     public Book isbn(Long isbn) {
         this.isbn = isbn;
         return this;
     }
 
-    public void setIsbn(Long isbn) {
-        this.isbn = isbn;
-    }
-
-    public LocalDate getPublicationDate() {
-        return publicationDate;
-    }
 
     public Book publicationDate(LocalDate publicationDate) {
         this.publicationDate = publicationDate;
         return this;
     }
 
-    public void setPublicationDate(LocalDate publicationDate) {
-        this.publicationDate = publicationDate;
-    }
-
-    public Classification getClassification() {
-        return classification;
-    }
 
     public Book classification(Classification classification) {
         this.classification = classification;
         return this;
     }
 
-    public void setClassification(Classification classification) {
-        this.classification = classification;
-    }
-
-    public BookStatus getBookStatus() {
-        return bookStatus;
-    }
 
     public Book bookStatus(BookStatus bookStatus) {
         this.bookStatus = bookStatus;
         return this;
     }
 
-    public void setBookStatus(BookStatus bookStatus) {
-        this.bookStatus = bookStatus;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
 
     public Book location(Location location) {
         this.location = location;
         return this;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
-    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -233,34 +164,19 @@ public class Book implements Serializable {
         return 31;
     }
 
-    @Override
-    public String toString() {
-        return "Book{" +
-            "id=" + getId() +
-            ", title='" + getTitle() + "'" +
-            ", description='" + getDescription() + "'" +
-            ", author='" + getAuthor() + "'" +
-            ", publisher='" + getPublisher() + "'" +
-            ", isbn=" + getIsbn() +
-            ", publicationDate='" + getPublicationDate() + "'" +
-            ", classification='" + getClassification() + "'" +
-            ", bookStatus='" + getBookStatus() + "'" +
-            ", location='" + getLocation() + "'" +
-            ", bookReservations=" + getbookReservations()+"'"+
-            "}";
-    }
+
 
     public boolean checkReservationContains(Long userId){
-        return this.getbookReservations().stream().allMatch(b -> b.getUserId().equals(userId));
+        return this.getBookReservations().stream().allMatch(b -> b.getUserId().equals(userId));
     }
 
     public boolean isFirstReservation(Long userId){
-        return Objects.equals(this.getbookReservations().stream()
+        return Objects.equals(this.getBookReservations().stream()
             .sorted(Comparator.comparing(BookReservation::getReservedSeqNo)).findFirst().get().getUserId(), userId);
     }
 
     public Book removeBookReservationByUserId(Long userId){
-        BookReservation bookReservation = this.getbookReservations().stream().filter(b -> b.getUserId().equals(userId)).findAny().get();
+        BookReservation bookReservation = this.getBookReservations().stream().filter(b -> b.getUserId().equals(userId)).findAny().get();
         return this.removeBookReservation(bookReservation);
 
     }

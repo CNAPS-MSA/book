@@ -51,7 +51,7 @@ class BookRepositoryTest{
         book.addBookReservation(new BookReservation((long)1, (long)2));
         book.removeBookReservationByUserId((long)2);
         book = bookRepository.save(book);
-        book.getbookReservations().forEach(b-> System.out.println("userId: "+ b.getUserId() + "seq"+b.getReservedSeqNo()));
+        book.getBookReservations().forEach(b-> System.out.println("userId: "+ b.getUserId() + "seq"+b.getReservedSeqNo()));
     }
 
 }
