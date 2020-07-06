@@ -97,7 +97,7 @@ public class BookServiceImpl implements BookService {
         for(Long bookId: bookIds){
             Book book = bookRepository.findById(bookId).get();
                 if(book.getBookStatus().equals(BookStatus.AVAILABLE)){ //대여가능상태
-                    if(book.getbookReservations().size()==0) { //예약자 없으면
+                    if(book.getBookReservations().size()==0) { //예약자 없으면
                         bookInfoList.add(new BookInfo(bookId, bookRepository.findById(bookId).get().getTitle()));
                     }else{
                         if(book.checkReservationContains(userId)){ //예약자 리스트에 있으면
@@ -106,15 +106,22 @@ public class BookServiceImpl implements BookService {
                                 book=book.removeBookReservationByUserId(userId); // 예약자리스트에서 삭제
                                 bookRepository.save(book);
                             }
+                        }else{ //예약자 리스트에 없으면
+                            book= makeReservation(book, userId, (long)book.getBookReservations().size());
                         }
                     }
                 }
                 else{ //대여 불가능 상태
-                    if (!book.checkReservationContains(userId)) { //예약자 리스트에 없으면
-                        log.debug("check Reservation", false);
-                       book= makeReservation(book, userId, (long) book.getbookReservations().size()); //리스트에 추가
+                    if(book.getBookReservations().size()>0) {
+                        if (!book.checkReservationContains(userId)) { //예약자 리스트에 없으면
+                            log.debug("check Reservation", false);
+                            book = makeReservation(book, userId, (long) book.getBookReservations().size()); //리스트에 추가
+                        }
+                    }else{
+                        book = book.bookReservations(new HashSet<>());
+                        book = makeReservation(book, userId, (long) book.getBookReservations().size());
                     }
-                    System.out.println("book Reservation Size:"+ book.getbookReservations().size());
+                    System.out.println("book Reservation Size:"+ book.getBookReservations().size());
                     //log.debug("book Reservation Size:", book.getbookReservations().size());
                 }
         }
@@ -127,7 +134,7 @@ public class BookServiceImpl implements BookService {
 
         book=book.addBookReservation(new BookReservation(userId, bookResCnt+1));
         System.out.println("Make Reservation: ");
-        book.getbookReservations().forEach(b-> System.out.println(b.getUserId()+"&&"+b.getReservedSeqNo()));
+        book.getBookReservations().forEach(b-> System.out.println(b.getUserId()+"&&"+b.getReservedSeqNo()));
         book=bookRepository.save(book);
         return book;
     }
@@ -140,8 +147,9 @@ public class BookServiceImpl implements BookService {
     @Override
     public void sendBookCatalogEvent(String eventType,Long bookId) throws InterruptedException, ExecutionException, JsonProcessingException {
         Book book = bookRepository.findById(bookId).get();
-        if(eventType.equals("NEW_BOOK")) {
-            BookCatalogEvent bookCatalogEvent = new BookCatalogEvent();
+        BookCatalogEvent bookCatalogEvent = new BookCatalogEvent();
+        if(eventType.equals("NEW_BOOK") || eventType.equals("UPDATE_BOOK")) {
+            bookCatalogEvent.setBookId(book.getId());
             bookCatalogEvent.setAuthor(book.getAuthor());
             bookCatalogEvent.setClassification(book.getClassification().toString());
             bookCatalogEvent.setDescription(book.getDescription());
@@ -152,9 +160,8 @@ public class BookServiceImpl implements BookService {
             bookCatalogEvent.setRentCnt((long) 0);
             bookKafkaProducer.sendBookCreateEvent(bookCatalogEvent);
         }else if(eventType.equals("DELETE_BOOK")){
-            BookCatalogEvent bookCatalogEvent = new BookCatalogEvent();
             bookCatalogEvent.setEventType(eventType);
-            bookCatalogEvent.setTitle(book.getTitle());
+            bookCatalogEvent.setBookId(book.getId());
             bookKafkaProducer.sendBookDeleteEvent(bookCatalogEvent);
         }
     }

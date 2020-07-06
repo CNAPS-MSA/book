@@ -1,5 +1,6 @@
 package com.skcc.book.web.rest;
 
+import com.skcc.book.domain.InStockBook;
 import com.skcc.book.service.InStockBookService;
 import com.skcc.book.web.rest.errors.BadRequestAlertException;
 import com.skcc.book.web.rest.dto.InStockBookDTO;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -93,9 +95,10 @@ public class InStockBookResource {
     @GetMapping("/in-stock-books")
     public ResponseEntity<List<InStockBookDTO>> getAllInStockBooks(Pageable pageable) {
         log.debug("REST request to get a page of InStockBooks");
-        Page<InStockBookDTO> page = inStockBookService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        Page<InStockBook> page = inStockBookService.findAll(pageable);
+        List<InStockBookDTO> inStockBookDTOS = inStockBookMapper.toDto(page.getContent());
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), new PageImpl<>(inStockBookDTOS));
+        return ResponseEntity.ok().headers(headers).body(inStockBookDTOS);
     }
 
     /**

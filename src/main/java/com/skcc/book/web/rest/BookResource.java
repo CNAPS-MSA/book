@@ -98,7 +98,13 @@ public class BookResource {
         if (bookDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        BookDTO result = bookMapper.toDto(bookService.save(bookMapper.toEntity(bookDTO)));
+        Book book = bookService.save(bookMapper.toEntity(bookDTO));
+        try {
+            bookService.sendBookCatalogEvent("UPDATE_BOOK",book.getId()); //send kafka - bookcatalog
+        } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        BookDTO result = bookMapper.toDto(book);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, bookDTO.getId().toString()))
             .body(result);
@@ -128,10 +134,7 @@ public class BookResource {
     @GetMapping("/books/{id}")
     public ResponseEntity<BookDTO> getBook(@PathVariable Long id) {
         log.debug("REST request to get Book : {}", id);
-        bookService.findOne(id).get().getbookReservations().forEach(b-> System.out.println(b.getUserId()+" and "+b.getReservedSeqNo()));
         BookDTO bookDTO = bookMapper.toDto(bookService.findOne(id).get());
-
-        bookDTO.getBookReservations().forEach(b-> System.out.println("DTO: "+b.getUserId()+" and "+b.getReservedSeqNo()));
         return ResponseEntity.ok().body(bookDTO);
     }
 
@@ -164,8 +167,6 @@ public class BookResource {
     @GetMapping("/getBook/{bookId}")
     public ResponseEntity<Book> getBooks(@PathVariable("bookId")Long bookId){
         Book book = bookService.getBooks(bookId);
-        System.out.println("book Reservation: " + book.getbookReservations().size());
-        book.getbookReservations().forEach(b-> System.out.println("userId: "+ b.getUserId() +" reqNo: "+ b.getReservedSeqNo()));
         return ResponseEntity.ok().body(book);
     }
     /********

@@ -53,10 +53,9 @@ public class InStockBookServiceImpl implements InStockBookService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<InStockBookDTO> findAll(Pageable pageable) {
+    public Page<InStockBook> findAll(Pageable pageable) {
         log.debug("Request to get all InStockBooks");
-        return inStockBookRepository.findAll(pageable)
-            .map(inStockBookMapper::toDto);
+        return inStockBookRepository.findAll(pageable);
     }
 
     /**

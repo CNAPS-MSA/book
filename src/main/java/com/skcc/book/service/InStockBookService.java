@@ -27,7 +27,7 @@ public interface InStockBookService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<InStockBookDTO> findAll(Pageable pageable);
+    Page<InStockBook> findAll(Pageable pageable);
 
     /**
      * Get the "id" inStockBook.
