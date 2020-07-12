@@ -1,14 +1,14 @@
 package com.skcc.book.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.skcc.book.adaptor.BookKafkaProducer;
-import com.skcc.book.domain.BookCatalogEvent;
+import com.skcc.book.adaptor.BookProducer;
+import com.skcc.book.domain.event.CatalogChanged;
 import com.skcc.book.domain.BookReservation;
 import com.skcc.book.domain.enumeration.BookStatus;
 import com.skcc.book.service.BookService;
 import com.skcc.book.domain.Book;
 import com.skcc.book.repository.BookRepository;
-import com.skcc.book.web.rest.dto.BookInfo;
+import com.skcc.book.web.rest.dto.BookInfoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +32,13 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
 
-    private final BookKafkaProducer bookKafkaProducer;
+    private final BookProducer bookProducer;
 
     private static final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public BookServiceImpl(BookRepository bookRepository, BookKafkaProducer bookKafkaProducer) {
+    public BookServiceImpl(BookRepository bookRepository, BookProducer bookProducer) {
         this.bookRepository = bookRepository;
-        this.bookKafkaProducer = bookKafkaProducer;
+        this.bookProducer = bookProducer;
     }
 
     /**
@@ -92,17 +92,17 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public List<BookInfo> getBookInfo(List<Long> bookIds, Long userId) {
-        List<BookInfo> bookInfoList = new ArrayList<>();
+    public List<BookInfoDTO> getBookInfo(List<Long> bookIds, Long userId) {
+        List<BookInfoDTO> bookInfoDTOList = new ArrayList<>();
         for(Long bookId: bookIds){
             Book book = bookRepository.findById(bookId).get();
                 if(book.getBookStatus().equals(BookStatus.AVAILABLE)){ //대여가능상태
                     if(book.getBookReservations().size()==0) { //예약자 없으면
-                        bookInfoList.add(new BookInfo(bookId, bookRepository.findById(bookId).get().getTitle()));
+                        bookInfoDTOList.add(new BookInfoDTO(bookId, bookRepository.findById(bookId).get().getTitle()));
                     }else{
                         if(book.checkReservationContains(userId)){ //예약자 리스트에 있으면
                             if(book.isFirstReservation(userId)){ //예약자 1번인 경우
-                                bookInfoList.add(new BookInfo(bookId, bookRepository.findById(bookId).get().getTitle())); //예약
+                                bookInfoDTOList.add(new BookInfoDTO(bookId, bookRepository.findById(bookId).get().getTitle())); //예약
                                 book=book.removeBookReservationByUserId(userId); // 예약자리스트에서 삭제
                                 bookRepository.save(book);
                             }
@@ -125,7 +125,7 @@ public class BookServiceImpl implements BookService {
                     //log.debug("book Reservation Size:", book.getbookReservations().size());
                 }
         }
-        return bookInfoList;
+        return bookInfoDTOList;
     }
     //책의 예약자 목록에 추가
     @Override
@@ -147,22 +147,22 @@ public class BookServiceImpl implements BookService {
     @Override
     public void sendBookCatalogEvent(String eventType,Long bookId) throws InterruptedException, ExecutionException, JsonProcessingException {
         Book book = bookRepository.findById(bookId).get();
-        BookCatalogEvent bookCatalogEvent = new BookCatalogEvent();
+        CatalogChanged catalogChanged = new CatalogChanged();
         if(eventType.equals("NEW_BOOK") || eventType.equals("UPDATE_BOOK")) {
-            bookCatalogEvent.setBookId(book.getId());
-            bookCatalogEvent.setAuthor(book.getAuthor());
-            bookCatalogEvent.setClassification(book.getClassification().toString());
-            bookCatalogEvent.setDescription(book.getDescription());
-            bookCatalogEvent.setPublicationDate(book.getPublicationDate().format(fmt));
-            bookCatalogEvent.setTitle(book.getTitle());
-            bookCatalogEvent.setEventType(eventType);
-            bookCatalogEvent.setRented(!book.getBookStatus().equals(BookStatus.AVAILABLE));
-            bookCatalogEvent.setRentCnt((long) 0);
-            bookKafkaProducer.sendBookCreateEvent(bookCatalogEvent);
+            catalogChanged.setBookId(book.getId());
+            catalogChanged.setAuthor(book.getAuthor());
+            catalogChanged.setClassification(book.getClassification().toString());
+            catalogChanged.setDescription(book.getDescription());
+            catalogChanged.setPublicationDate(book.getPublicationDate().format(fmt));
+            catalogChanged.setTitle(book.getTitle());
+            catalogChanged.setEventType(eventType);
+            catalogChanged.setRented(!book.getBookStatus().equals(BookStatus.AVAILABLE));
+            catalogChanged.setRentCnt((long) 0);
+            bookProducer.sendBookCreateEvent(catalogChanged);
         }else if(eventType.equals("DELETE_BOOK")){
-            bookCatalogEvent.setEventType(eventType);
-            bookCatalogEvent.setBookId(book.getId());
-            bookKafkaProducer.sendBookDeleteEvent(bookCatalogEvent);
+            catalogChanged.setEventType(eventType);
+            catalogChanged.setBookId(book.getId());
+            bookProducer.sendBookDeleteEvent(catalogChanged);
         }
     }
 

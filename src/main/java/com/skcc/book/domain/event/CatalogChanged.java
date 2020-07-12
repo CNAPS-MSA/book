@@ -1,4 +1,4 @@
-package com.skcc.book.domain;
+package com.skcc.book.domain.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookCatalogEvent {
+public class CatalogChanged {
 
     private String title;
 
@@ -29,5 +29,5 @@ public class BookCatalogEvent {
 
     private Long bookId;
 
-   
+
 }

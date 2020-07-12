@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skcc.book.config.KafkaProperties;
 import com.skcc.book.domain.Book;
 import com.skcc.book.domain.enumeration.BookStatus;
-import com.skcc.book.repository.BookRepository;
-import com.skcc.book.domain.UpdateBookEvent;
+import com.skcc.book.domain.event.StockChanged;
+import com.skcc.book.service.BookService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -22,28 +22,20 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
-public class BookKafkaConsumer {
+public class BookConsumer {
 
-    private final Logger log = LoggerFactory.getLogger(BookKafkaConsumer.class);
-
+    private final Logger log = LoggerFactory.getLogger(BookConsumer.class);
     private final AtomicBoolean closed = new AtomicBoolean(false);
-
     public static final String TOPIC ="topic_book";
-
     private final KafkaProperties kafkaProperties;
-
     private KafkaConsumer<String, String> kafkaConsumer;
-
-    private BookRepository bookRepository;
-
+    private BookService bookService;
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
-
-    public BookKafkaConsumer(KafkaProperties kafkaProperties, BookRepository bookRepository) {
+    public BookConsumer(KafkaProperties kafkaProperties, BookService bookService) {
         this.kafkaProperties = kafkaProperties;
-        this.bookRepository = bookRepository;
+        this.bookService = bookService;
     }
-
 
     @PostConstruct
     public void start(){
@@ -55,46 +47,35 @@ public class BookKafkaConsumer {
 
         executorService.execute(()-> {
             try {
-
                 while (!closed.get()){
                     ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(3));
                     for(ConsumerRecord<String, String> record: records){
                         log.info("Consumed message in {} : {}", TOPIC, record.value());
                         ObjectMapper objectMapper = new ObjectMapper();
-                        UpdateBookEvent updateBookEvent = objectMapper.readValue(record.value(), UpdateBookEvent.class);
-                        Book book = bookRepository.findById(updateBookEvent.getBookId()).get();
-                        book.setBookStatus(BookStatus.valueOf(updateBookEvent.getBookStatus()));
-                        bookRepository.save(book);
-
+                        StockChanged stockChanged = objectMapper.readValue(record.value(), StockChanged.class);
+                        Book book = bookService.findOne(stockChanged.getBookId()).get();
+                        book.setBookStatus(BookStatus.valueOf(stockChanged.getBookStatus()));
+                        bookService.save(book);
                     }
-
                 }
                 kafkaConsumer.commitSync();
-
             }catch (WakeupException e){
                 if(!closed.get()){
                     throw e;
                 }
-
             }catch (Exception e){
                 log.error(e.getMessage(), e);
             }finally {
                 log.info("kafka consumer close");
                 kafkaConsumer.close();
             }
-
             }
-
-
-
         );
     }
-
 
     public KafkaConsumer<String, String> getKafkaConsumer() {
         return kafkaConsumer;
     }
-
     public void shutdown() {
         log.info("Shutdown Kafka consumer");
         closed.set(true);

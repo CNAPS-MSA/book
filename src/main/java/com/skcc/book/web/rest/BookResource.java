@@ -2,12 +2,9 @@ package com.skcc.book.web.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.skcc.book.domain.Book;
-import com.skcc.book.domain.converter.BookReservationConverter;
-import com.skcc.book.domain.enumeration.Source;
-import com.skcc.book.repository.BookRepository;
 import com.skcc.book.service.BookService;
 import com.skcc.book.service.InStockBookService;
-import com.skcc.book.web.rest.dto.BookInfo;
+import com.skcc.book.web.rest.dto.BookInfoDTO;
 import com.skcc.book.web.rest.errors.BadRequestAlertException;
 import com.skcc.book.web.rest.dto.BookDTO;
 
@@ -22,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -157,11 +153,11 @@ public class BookResource {
     }
 
     @GetMapping("/getBookInfo/{bookIds}/{userid}")
-    public ResponseEntity<List<BookInfo>> getBookInfo(@PathVariable("bookIds") List<Long> bookIds, @PathVariable("userid")Long userid){
+    public ResponseEntity<List<BookInfoDTO>> getBookInfo(@PathVariable("bookIds") List<Long> bookIds, @PathVariable("userid")Long userid){
         log.debug("Got feign request!!");
-        List<BookInfo> bookInfoList= bookService.getBookInfo(bookIds, userid);
-        log.debug(bookInfoList.toString());
-        return ResponseEntity.ok().body(bookInfoList);
+        List<BookInfoDTO> bookInfoDTOList = bookService.getBookInfo(bookIds, userid);
+        log.debug(bookInfoDTOList.toString());
+        return ResponseEntity.ok().body(bookInfoDTOList);
     }
 
     @GetMapping("/getBook/{bookId}")
