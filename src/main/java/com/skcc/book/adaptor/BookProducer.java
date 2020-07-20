@@ -3,7 +3,7 @@ package com.skcc.book.adaptor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skcc.book.config.KafkaProperties;
-import com.skcc.book.domain.BookCatalogEvent;
+import com.skcc.book.domain.event.CatalogChanged;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -17,20 +17,20 @@ import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 @Service
-public class BookKafkaProducer {
+public class BookProducer {
 
-    private final Logger log = LoggerFactory.getLogger(BookKafkaProducer.class);
+    private final Logger log = LoggerFactory.getLogger(BookProducer.class);
 
     private static final String TOPIC_CATALOG = "topic_catalog";
 
     private final KafkaProperties kafkaProperties;
 
-    private final static Logger logger = LoggerFactory.getLogger(BookKafkaProducer.class);
+    private final static Logger logger = LoggerFactory.getLogger(BookProducer.class);
     private KafkaProducer<String, String> producer;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
-    public BookKafkaProducer(KafkaProperties kafkaProperties) {
+    public BookProducer(KafkaProperties kafkaProperties) {
         this.kafkaProperties = kafkaProperties;
     }
 
@@ -42,14 +42,14 @@ public class BookKafkaProducer {
         log.info("Kafka producer initialized");
     }
 
-    public PublishResult sendBookCreateEvent(BookCatalogEvent bookCatalogEvent)throws ExecutionException, InterruptedException, JsonProcessingException{
+    public PublishResult sendBookCreateEvent(CatalogChanged catalogChanged)throws ExecutionException, InterruptedException, JsonProcessingException{
 
-        String message = objectMapper.writeValueAsString(bookCatalogEvent);
+        String message = objectMapper.writeValueAsString(catalogChanged);
         RecordMetadata metadata = producer.send(new ProducerRecord<>(TOPIC_CATALOG, message)).get();
         return new PublishResult(metadata.topic(), metadata.partition(), metadata.offset(), Instant.ofEpochMilli(metadata.timestamp()));
     }
 
-    public PublishResult sendBookDeleteEvent(BookCatalogEvent bookDeleteEvent)throws ExecutionException, InterruptedException, JsonProcessingException{
+    public PublishResult sendBookDeleteEvent(CatalogChanged bookDeleteEvent)throws ExecutionException, InterruptedException, JsonProcessingException{
 
         String message = objectMapper.writeValueAsString(bookDeleteEvent);
         RecordMetadata metadata = producer.send(new ProducerRecord<>(TOPIC_CATALOG, message)).get();

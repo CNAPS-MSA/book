@@ -3,7 +3,7 @@ package com.skcc.book.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.skcc.book.domain.Book;
 
-import com.skcc.book.web.rest.dto.BookInfo;
+import com.skcc.book.web.rest.dto.BookInfoDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -47,7 +47,7 @@ public interface BookService {
      */
     void delete(Long id);
 
-    List<BookInfo> getBookInfo(List<Long> bookIds, Long userId);
+    List<BookInfoDTO> getBookInfo(List<Long> bookIds, Long userId);
 
     Book makeReservation(Book book, Long userId, Long bookResCnt);
 

@@ -3,12 +3,12 @@ package com.skcc.book.web.rest.dto;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-public class BookInfo implements Serializable {
+public class BookInfoDTO implements Serializable {
     private Long id;
 
     private String title;
 
-    public BookInfo(Long id, String title) {
+    public BookInfoDTO(Long id, String title) {
         this.id = id;
         this.title = title;
     }
