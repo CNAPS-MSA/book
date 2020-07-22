@@ -79,6 +79,24 @@ public class BookResource {
             .body(result);
     }
 
+    @PostMapping("/books/{inStockId}")
+    public ResponseEntity<BookDTO> registerBook(@RequestBody BookDTO bookDTO, @PathVariable Long inStockId) throws  URISyntaxException{
+        if (bookDTO.getId() != null) {
+            throw new BadRequestAlertException("A new book cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        Book newBook = bookService.save(bookMapper.toEntity(bookDTO));
+        inStockBookService.delete(inStockId);
+        try{
+            bookService.sendBookCatalogEvent("NEW_BOOK",newBook.getId()); //send kafka - bookcatalog
+        } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        BookDTO result = bookMapper.toDto(newBook);
+        return ResponseEntity.created(new URI("/api/books/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
     /**
      * {@code PUT  /books} : Updates an existing book.
      *
@@ -160,11 +178,11 @@ public class BookResource {
         return ResponseEntity.ok().body(bookInfoDTOList);
     }
 
-    @GetMapping("/getBook/{bookId}")
-    public ResponseEntity<Book> getBooks(@PathVariable("bookId")Long bookId){
-        Book book = bookService.getBooks(bookId);
-        return ResponseEntity.ok().body(book);
-    }
+//    @GetMapping("/getBook/{bookId}")
+//    public ResponseEntity<Book> getBooks(@PathVariable("bookId")Long bookId){
+//        Book book = bookService.getBooks(bookId);
+//        return ResponseEntity.ok().body(book);
+//    }
     /********
      *
      * Register in stock books

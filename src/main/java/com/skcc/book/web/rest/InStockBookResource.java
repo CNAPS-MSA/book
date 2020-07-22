@@ -126,4 +126,13 @@ public class InStockBookResource {
         inStockBookService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
+
+    @GetMapping("/in-stock-books/title/{title}")
+    public ResponseEntity<List<InStockBookDTO>> getInStockBookByTitle(@PathVariable String title, Pageable pageable){
+        Page<InStockBook> page = inStockBookService.findByTitle(title, pageable);
+        List<InStockBookDTO> inStockBookDTOS = inStockBookMapper.toDto(page.getContent());
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), new PageImpl<>(inStockBookDTOS));
+        return ResponseEntity.ok().headers(headers).body(inStockBookDTOS);
+
+    }
 }
