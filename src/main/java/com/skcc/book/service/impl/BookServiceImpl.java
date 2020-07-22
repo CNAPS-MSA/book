@@ -97,52 +97,56 @@ public class BookServiceImpl implements BookService {
         for(Long bookId: bookIds){
             Book book = bookRepository.findById(bookId).get();
                 if(book.getBookStatus().equals(BookStatus.AVAILABLE)){ //대여가능상태
-                    if(book.getBookReservations().size()==0) { //예약자 없으면
-                        bookInfoDTOList.add(new BookInfoDTO(bookId, bookRepository.findById(bookId).get().getTitle()));
-                    }else{
-                        if(book.checkReservationContains(userId)){ //예약자 리스트에 있으면
-                            if(book.isFirstReservation(userId)){ //예약자 1번인 경우
-                                bookInfoDTOList.add(new BookInfoDTO(bookId, bookRepository.findById(bookId).get().getTitle())); //예약
-                                book=book.removeBookReservationByUserId(userId); // 예약자리스트에서 삭제
-                                bookRepository.save(book);
-                            }
-                        }else{ //예약자 리스트에 없으면
-                            book= makeReservation(book, userId, (long)book.getBookReservations().size());
-                        }
-                    }
+                    bookInfoDTOList=getAvailableBookList(bookInfoDTOList, userId, book);
+
                 }
                 else{ //대여 불가능 상태
-                    if(book.getBookReservations().size()>0) {
-                        if (!book.checkReservationContains(userId)) { //예약자 리스트에 없으면
-                            log.debug("check Reservation", false);
-                            book = makeReservation(book, userId, (long) book.getBookReservations().size()); //리스트에 추가
-                        }
-                    }else{
-                        book = book.bookReservations(new HashSet<>());
-                        book = makeReservation(book, userId, (long) book.getBookReservations().size());
-                    }
-                    System.out.println("book Reservation Size:"+ book.getBookReservations().size());
-                    //log.debug("book Reservation Size:", book.getbookReservations().size());
+                    getUnavailableBookList(book,userId);
                 }
         }
         return bookInfoDTOList;
+    }
+
+    public List<BookInfoDTO> getAvailableBookList(List<BookInfoDTO> bookInfoDTOList, Long userId, Book book){
+        List<BookInfoDTO> mBookInfoDTOList = bookInfoDTOList;
+        if(book.getBookReservations().size()==0) { //예약자 없으면
+            mBookInfoDTOList.add(new BookInfoDTO(book.getId(), bookRepository.findById(book.getId()).get().getTitle()));
+        }else{
+            if(book.checkReservationContains(userId)){ //예약자 리스트에 있으면
+                if(book.isFirstReservation(userId)){ //예약자 1번인 경우
+                    mBookInfoDTOList.add(new BookInfoDTO(book.getId(), bookRepository.findById(book.getId()).get().getTitle())); //예약
+                    book=book.removeBookReservationByUserId(userId); // 예약자리스트에서 삭제
+                    bookRepository.save(book);
+                }
+            }else{ //예약자 리스트에 없으면
+                makeReservation(book, userId, (long)book.getBookReservations().size());
+            }
+        }
+        return mBookInfoDTOList;
+    }
+    public void getUnavailableBookList(Book book, Long userId){
+        if(book.getBookReservations().size()>0) {
+            if (!book.checkReservationContains(userId)) { //예약자 리스트에 없으면
+                makeReservation(book, userId, (long) book.getBookReservations().size()); //리스트에 추가
+            }
+        }else{
+            book = book.bookReservations(new HashSet<>());
+            makeReservation(book, userId, (long) book.getBookReservations().size());
+        }
     }
     //책의 예약자 목록에 추가
     @Override
     @Transactional
     public Book makeReservation(Book book, Long userId, Long bookResCnt) {
-
         book=book.addBookReservation(new BookReservation(userId, bookResCnt+1));
-        System.out.println("Make Reservation: ");
-        book.getBookReservations().forEach(b-> System.out.println(b.getUserId()+"&&"+b.getReservedSeqNo()));
         book=bookRepository.save(book);
         return book;
     }
 
-    @Override
-    public Book getBooks(Long bookId) {
-        return bookRepository.findById(bookId).get();
-    }
+//    @Override
+//    public Book getBooks(Long bookId) {
+//        return bookRepository.findById(bookId).get();
+//    }
 
     @Override
     public void sendBookCatalogEvent(String eventType,Long bookId) throws InterruptedException, ExecutionException, JsonProcessingException {

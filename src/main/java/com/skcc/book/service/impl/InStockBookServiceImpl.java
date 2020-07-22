@@ -81,4 +81,9 @@ public class InStockBookServiceImpl implements InStockBookService {
         log.debug("Request to delete InStockBook : {}", id);
         inStockBookRepository.deleteById(id);
     }
+
+    @Override
+    public Page<InStockBook> findByTitle(String title, Pageable pageable) {
+        return inStockBookRepository.findByTitleLike(title, pageable);
+    }
 }

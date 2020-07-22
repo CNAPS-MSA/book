@@ -43,4 +43,6 @@ public interface InStockBookService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    Page<InStockBook> findByTitle(String title, Pageable pageable);
 }

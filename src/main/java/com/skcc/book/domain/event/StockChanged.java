@@ -1,8 +1,8 @@
 
 package com.skcc.book.domain.event;
 
-    import lombok.Getter;
-    import lombok.Setter;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

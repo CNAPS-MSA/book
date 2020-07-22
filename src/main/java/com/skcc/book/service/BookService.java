@@ -51,7 +51,7 @@ public interface BookService {
 
     Book makeReservation(Book book, Long userId, Long bookResCnt);
 
-    Book getBooks(Long bookId);
+    //Book getBooks(Long bookId);
 
     void sendBookCatalogEvent(String eventType, Long bookId) throws InterruptedException, ExecutionException, JsonProcessingException;
 }
