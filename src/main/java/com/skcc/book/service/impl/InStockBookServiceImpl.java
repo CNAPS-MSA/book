@@ -83,7 +83,7 @@ public class InStockBookServiceImpl implements InStockBookService {
     }
 
     @Override
-    public Page<InStockBook> findByTitle(String title, Pageable pageable) {
-        return inStockBookRepository.findByTitleLike(title, pageable);
+    public Page<InStockBookDTO> findByTitle(String title, Pageable pageable) {
+        return inStockBookRepository.findByTitleContaining(title, pageable).map(inStockBookMapper::toDto);
     }
 }
