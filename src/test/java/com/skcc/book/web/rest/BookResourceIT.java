@@ -2,7 +2,6 @@ package com.skcc.book.web.rest;
 
 import com.skcc.book.BookApp;
 import com.skcc.book.domain.Book;
-import com.skcc.book.domain.BookReservation;
 import com.skcc.book.repository.BookRepository;
 import com.skcc.book.service.BookService;
 import com.skcc.book.web.rest.dto.BookDTO;
@@ -65,8 +64,6 @@ public class BookResourceIT {
 
     private static final Location DEFAULT_LOCATION = Location.JEONGJA;
     private static final Location UPDATED_LOCATION = Location.PANGYO;
-
-    private static final BookReservation BOOK_RESERVATION = new BookReservation();
 
     @Autowired
     private BookRepository bookRepository;

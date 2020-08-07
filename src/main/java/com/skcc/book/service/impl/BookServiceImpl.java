@@ -3,7 +3,6 @@ package com.skcc.book.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.skcc.book.adaptor.BookProducer;
 import com.skcc.book.domain.event.CatalogChanged;
-import com.skcc.book.domain.BookReservation;
 import com.skcc.book.domain.enumeration.BookStatus;
 import com.skcc.book.service.BookService;
 import com.skcc.book.domain.Book;
@@ -92,61 +91,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public List<BookInfoDTO> getBookInfo(List<Long> bookIds, Long userId) {
-        List<BookInfoDTO> bookInfoDTOList = new ArrayList<>();
-        for(Long bookId: bookIds){
-            Book book = bookRepository.findById(bookId).get();
-                if(book.getBookStatus().equals(BookStatus.AVAILABLE)){ //대여가능상태
-                    bookInfoDTOList=getAvailableBookList(bookInfoDTOList, userId, book);
-
-                }
-                else{ //대여 불가능 상태
-                    getUnavailableBookList(book,userId);
-                }
-        }
-        return bookInfoDTOList;
+    public BookInfoDTO findBookInfo(Long bookId) {
+        BookInfoDTO bookInfoDTO = new BookInfoDTO();
+        Book book = bookRepository.findById(bookId).get();
+        bookInfoDTO.setId(book.getId());
+        bookInfoDTO.setTitle(bookRepository.findById(book.getId()).get().getTitle());
+        return bookInfoDTO;
     }
 
-    public List<BookInfoDTO> getAvailableBookList(List<BookInfoDTO> bookInfoDTOList, Long userId, Book book){
-        List<BookInfoDTO> mBookInfoDTOList = bookInfoDTOList;
-        if(book.getBookReservations().size()==0) { //예약자 없으면
-            mBookInfoDTOList.add(new BookInfoDTO(book.getId(), bookRepository.findById(book.getId()).get().getTitle()));
-        }else{
-            if(book.checkReservationContains(userId)){ //예약자 리스트에 있으면
-                if(book.isFirstReservation(userId)){ //예약자 1번인 경우
-                    mBookInfoDTOList.add(new BookInfoDTO(book.getId(), bookRepository.findById(book.getId()).get().getTitle())); //예약
-                    book=book.removeBookReservationByUserId(userId); // 예약자리스트에서 삭제
-                    bookRepository.save(book);
-                }
-            }else{ //예약자 리스트에 없으면
-                makeReservation(book, userId, (long)book.getBookReservations().size());
-            }
-        }
-        return mBookInfoDTOList;
-    }
-    public void getUnavailableBookList(Book book, Long userId){
-        if(book.getBookReservations().size()>0) {
-            if (!book.checkReservationContains(userId)) { //예약자 리스트에 없으면
-                makeReservation(book, userId, (long) book.getBookReservations().size()); //리스트에 추가
-            }
-        }else{
-            book = book.bookReservations(new HashSet<>());
-            makeReservation(book, userId, (long) book.getBookReservations().size());
-        }
-    }
-    //책의 예약자 목록에 추가
-    @Override
-    @Transactional
-    public Book makeReservation(Book book, Long userId, Long bookResCnt) {
-        book=book.addBookReservation(new BookReservation(userId, bookResCnt+1));
-        book=bookRepository.save(book);
-        return book;
-    }
-
-//    @Override
-//    public Book getBooks(Long bookId) {
-//        return bookRepository.findById(bookId).get();
-//    }
 
     @Override
     public void sendBookCatalogEvent(String eventType,Long bookId) throws InterruptedException, ExecutionException, JsonProcessingException {

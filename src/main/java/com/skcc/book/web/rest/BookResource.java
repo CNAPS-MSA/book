@@ -170,33 +170,14 @@ public class BookResource {
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
 
-    @GetMapping("/getBookInfo/{bookIds}/{userid}")
-    public ResponseEntity<List<BookInfoDTO>> getBookInfo(@PathVariable("bookIds") List<Long> bookIds, @PathVariable("userid")Long userid){
+    @GetMapping("/books/findBookInfo/{bookId}")
+    public ResponseEntity<BookInfoDTO> findBookInfo(@PathVariable("bookId") Long bookId){
         log.debug("Got feign request!!");
-        List<BookInfoDTO> bookInfoDTOList = bookService.getBookInfo(bookIds, userid);
-        log.debug(bookInfoDTOList.toString());
-        return ResponseEntity.ok().body(bookInfoDTOList);
+        BookInfoDTO bookInfoDTO = bookService.findBookInfo(bookId);
+        log.debug(bookInfoDTO.toString());
+        return ResponseEntity.ok().body(bookInfoDTO);
     }
 
-//    @GetMapping("/getBook/{bookId}")
-//    public ResponseEntity<Book> getBooks(@PathVariable("bookId")Long bookId){
-//        Book book = bookService.getBooks(bookId);
-//        return ResponseEntity.ok().body(book);
-//    }
-    /********
-     *
-     * Register in stock books
-     *
-     * ******/
-
-
-    /****
-     *
-     *
-     * Register a new book from in stock book
-     *
-     *
-     * ***/
 
 
 

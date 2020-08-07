@@ -1,6 +1,5 @@
 package com.skcc.book.domain;
 
-import com.skcc.book.domain.converter.BookReservationConverter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -69,28 +68,6 @@ public class Book implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "location")
     private Location location;
-
-
-    @Convert(converter = BookReservationConverter.class)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    @Column(name="book_reservation")
-    private Set<BookReservation> bookReservations= new HashSet<>();
-
-
-    public Book bookReservations(Set<BookReservation> bookReservations) {
-        this.bookReservations = bookReservations;
-        return this;
-    }
-
-    public Book addBookReservation(BookReservation bookReservation) {
-        this.bookReservations.add(bookReservation);
-        return this;
-    }
-
-    public Book removeBookReservation(BookReservation bookReservation) {
-        this.bookReservations.remove(bookReservation);
-        return this;
-    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
 
@@ -166,19 +143,5 @@ public class Book implements Serializable {
 
 
 
-    public boolean checkReservationContains(Long userId){
-        return this.getBookReservations().stream().allMatch(b -> b.getUserId().equals(userId));
-    }
-
-    public boolean isFirstReservation(Long userId){
-        return Objects.equals(this.getBookReservations().stream()
-            .sorted(Comparator.comparing(BookReservation::getReservedSeqNo)).findFirst().get().getUserId(), userId);
-    }
-
-    public Book removeBookReservationByUserId(Long userId){
-        BookReservation bookReservation = this.getBookReservations().stream().filter(b -> b.getUserId().equals(userId)).findAny().get();
-        return this.removeBookReservation(bookReservation);
-
-    }
 
 }

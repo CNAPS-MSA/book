@@ -47,9 +47,7 @@ public interface BookService {
      */
     void delete(Long id);
 
-    List<BookInfoDTO> getBookInfo(List<Long> bookIds, Long userId);
-
-    Book makeReservation(Book book, Long userId, Long bookResCnt);
+    BookInfoDTO findBookInfo(Long bookId);
 
     //Book getBooks(Long bookId);
 
