@@ -25,7 +25,7 @@ pipeline {
         stage('Build and Push') {
             steps {
                 echo "${IMAGE_TAG}"
-                //sh "./mvnw package -Pprod -DskipTests jib:build -Dimage=${IMAGE_TAG}"
+                sh "./mvnw package -Pprod -DskipTests jib:build -Dimage=${IMAGE_TAG}"
             }
         }
         stage('Deploy Production') {
