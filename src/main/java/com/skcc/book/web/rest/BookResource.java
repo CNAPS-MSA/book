@@ -44,13 +44,11 @@ public class BookResource {
 
     private final BookService bookService;
     private final InStockBookService inStockBookService;
-    private final InStockBookMapper inStockBookMapper;
     private final BookMapper bookMapper;
 
-    public BookResource(BookService bookService, InStockBookService inStockBookService, InStockBookMapper inStockBookMapper, BookMapper bookMapper) {
+    public BookResource(BookService bookService, InStockBookService inStockBookService, BookMapper bookMapper) {
         this.bookService = bookService;
         this.inStockBookService = inStockBookService;
-        this.inStockBookMapper = inStockBookMapper;
         this.bookMapper = bookMapper;
     }
 
@@ -62,17 +60,12 @@ public class BookResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/books")
-    public ResponseEntity<BookDTO> createBook(@RequestBody BookDTO bookDTO) throws URISyntaxException {
+    public ResponseEntity<BookDTO> createBook(@RequestBody BookDTO bookDTO) throws URISyntaxException, InterruptedException, ExecutionException, JsonProcessingException {
         log.debug("REST request to save Book : {}", bookDTO);
         if (bookDTO.getId() != null) {
             throw new BadRequestAlertException("A new book cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Book newBook = bookService.save(bookMapper.toEntity(bookDTO));
-        try {
-            bookService.sendBookCatalogEvent("NEW_BOOK",newBook.getId()); //send kafka - bookcatalog
-        } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        Book newBook = bookService.createBook(bookMapper.toEntity(bookDTO));
         BookDTO result = bookMapper.toDto(newBook);
         return ResponseEntity.created(new URI("/api/books/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -80,17 +73,11 @@ public class BookResource {
     }
 
     @PostMapping("/books/{inStockId}")
-    public ResponseEntity<BookDTO> registerBook(@RequestBody BookDTO bookDTO, @PathVariable Long inStockId) throws  URISyntaxException{
+    public ResponseEntity<BookDTO> registerBook(@RequestBody BookDTO bookDTO, @PathVariable Long inStockId) throws  URISyntaxException, InterruptedException, ExecutionException, JsonProcessingException {
         if (bookDTO.getId() != null) {
             throw new BadRequestAlertException("A new book cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Book newBook = bookService.save(bookMapper.toEntity(bookDTO));
-        inStockBookService.delete(inStockId);
-        try{
-            bookService.sendBookCatalogEvent("NEW_BOOK",newBook.getId()); //send kafka - bookcatalog
-        } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        Book newBook = bookService.registerNewBook(bookMapper.toEntity(bookDTO), inStockId);
         BookDTO result = bookMapper.toDto(newBook);
         return ResponseEntity.created(new URI("/api/books/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -107,17 +94,12 @@ public class BookResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/books")
-    public ResponseEntity<BookDTO> updateBook(@RequestBody BookDTO bookDTO) throws URISyntaxException {
+    public ResponseEntity<BookDTO> updateBook(@RequestBody BookDTO bookDTO) throws URISyntaxException, InterruptedException, ExecutionException, JsonProcessingException {
         log.debug("REST request to update Book : {}", bookDTO);
         if (bookDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Book book = bookService.save(bookMapper.toEntity(bookDTO));
-        try {
-            bookService.sendBookCatalogEvent("UPDATE_BOOK",book.getId()); //send kafka - bookcatalog
-        } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        Book book = bookService.updateBook(bookMapper.toEntity(bookDTO));
         BookDTO result = bookMapper.toDto(book);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, bookDTO.getId().toString()))
@@ -159,21 +141,16 @@ public class BookResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/books/{id}")
-    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteBook(@PathVariable Long id) throws InterruptedException, ExecutionException, JsonProcessingException {
         log.debug("REST request to delete Book : {}", id);
-        try {
-            bookService.sendBookCatalogEvent("DELETE_BOOK", id);
-        } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
-            e.printStackTrace();
-        }
         bookService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
 
-    @GetMapping("/books/findBookInfo/{bookId}")
+    @GetMapping("/books/bookInfo/{bookId}")
     public ResponseEntity<BookInfoDTO> findBookInfo(@PathVariable("bookId") Long bookId){
-        log.debug("Got feign request!!");
-        BookInfoDTO bookInfoDTO = bookService.findBookInfo(bookId);
+        Book book = bookService.findBookInfo(bookId);
+        BookInfoDTO bookInfoDTO = new BookInfoDTO(bookId, book.getTitle());
         log.debug(bookInfoDTO.toString());
         return ResponseEntity.ok().body(bookInfoDTO);
     }

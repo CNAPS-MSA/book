@@ -3,7 +3,7 @@ package com.skcc.book.adaptor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skcc.book.config.KafkaProperties;
-import com.skcc.book.domain.event.CatalogChanged;
+import com.skcc.book.domain.event.BookChanged;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -42,14 +42,14 @@ public class BookProducer {
         log.info("Kafka producer initialized");
     }
 
-    public PublishResult sendBookCreateEvent(CatalogChanged catalogChanged)throws ExecutionException, InterruptedException, JsonProcessingException{
+    public PublishResult sendBookCreateEvent(BookChanged bookChanged)throws ExecutionException, InterruptedException, JsonProcessingException{
 
-        String message = objectMapper.writeValueAsString(catalogChanged);
+        String message = objectMapper.writeValueAsString(bookChanged);
         RecordMetadata metadata = producer.send(new ProducerRecord<>(TOPIC_CATALOG, message)).get();
         return new PublishResult(metadata.topic(), metadata.partition(), metadata.offset(), Instant.ofEpochMilli(metadata.timestamp()));
     }
 
-    public PublishResult sendBookDeleteEvent(CatalogChanged bookDeleteEvent)throws ExecutionException, InterruptedException, JsonProcessingException{
+    public PublishResult sendBookDeleteEvent(BookChanged bookDeleteEvent)throws ExecutionException, InterruptedException, JsonProcessingException{
 
         String message = objectMapper.writeValueAsString(bookDeleteEvent);
         RecordMetadata metadata = producer.send(new ProducerRecord<>(TOPIC_CATALOG, message)).get();

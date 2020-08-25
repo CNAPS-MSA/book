@@ -45,11 +45,18 @@ public interface BookService {
      *
      * @param id the id of the entity.
      */
-    void delete(Long id);
+    void delete(Long id) throws InterruptedException, ExecutionException, JsonProcessingException;
 
-    BookInfoDTO findBookInfo(Long bookId);
+    Book createBook(Book book) throws InterruptedException, ExecutionException, JsonProcessingException;
 
-    //Book getBooks(Long bookId);
+    Book updateBook(Book book) throws InterruptedException, ExecutionException, JsonProcessingException;
+
+    void processChangeBookState(Long bookId, String bookStatus);
+
+
+    Book findBookInfo(Long bookId);
+
+    Book registerNewBook(Book book, Long inStockId) throws InterruptedException, ExecutionException, JsonProcessingException;
 
     void sendBookCatalogEvent(String eventType, Long bookId) throws InterruptedException, ExecutionException, JsonProcessingException;
 }

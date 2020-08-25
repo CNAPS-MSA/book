@@ -53,9 +53,7 @@ public class BookConsumer {
                         log.info("Consumed message in {} : {}", TOPIC, record.value());
                         ObjectMapper objectMapper = new ObjectMapper();
                         StockChanged stockChanged = objectMapper.readValue(record.value(), StockChanged.class);
-                        Book book = bookService.findOne(stockChanged.getBookId()).get();
-                        book.setBookStatus(BookStatus.valueOf(stockChanged.getBookStatus()));
-                        bookService.save(book);
+                        bookService.processChangeBookState(stockChanged.getBookId(), stockChanged.getBookStatus());
                     }
                 }
                 kafkaConsumer.commitSync();

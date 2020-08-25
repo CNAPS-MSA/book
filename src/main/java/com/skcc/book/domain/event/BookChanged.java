@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CatalogChanged {
+public class BookChanged {
 
     private String title;
 
