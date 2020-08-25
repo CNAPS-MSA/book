@@ -8,7 +8,6 @@ import com.skcc.book.web.rest.dto.InStockBookDTO;
 import com.skcc.book.web.rest.mapper.InStockBookMapper;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -129,10 +128,10 @@ public class InStockBookResource {
 
     @GetMapping("/in-stock-books/title/{title}")
     public ResponseEntity<List<InStockBookDTO>> getInStockBookByTitle(@PathVariable String title, Pageable pageable){
-        Page<InStockBook> page = inStockBookService.findByTitle(title, pageable);
-        List<InStockBookDTO> inStockBookDTOS = inStockBookMapper.toDto(page.getContent());
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), new PageImpl<>(inStockBookDTOS));
-        return ResponseEntity.ok().headers(headers).body(inStockBookDTOS);
+        Page<InStockBookDTO> page = inStockBookService.findByTitle(title, pageable);
+       // List<InStockBookDTO> inStockBookDTOS = inStockBookMapper.toDto(page.getContent());
+        //HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), new PageImpl<>(inStockBookDTOS));
+        return ResponseEntity.ok().body(page.getContent());
 
     }
 }
