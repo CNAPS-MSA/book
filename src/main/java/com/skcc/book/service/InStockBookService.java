@@ -44,5 +44,5 @@ public interface InStockBookService {
      */
     void delete(Long id);
 
-    Page<InStockBook> findByTitle(String title, Pageable pageable);
+    Page<InStockBookDTO> findByTitle(String title, Pageable pageable);
 }

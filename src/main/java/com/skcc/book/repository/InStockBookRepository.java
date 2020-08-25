@@ -13,5 +13,5 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface InStockBookRepository extends JpaRepository<InStockBook, Long> {
-    Page<InStockBook> findByTitleLike(String title, Pageable pageable);
+    Page<InStockBook> findByTitleContaining(String title, Pageable pageable);
 }
