@@ -2,6 +2,7 @@ package com.skcc.book.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.skcc.book.adaptor.BookProducer;
+import com.skcc.book.adaptor.BookProducerService;
 import com.skcc.book.domain.event.BookChanged;
 import com.skcc.book.domain.enumeration.BookStatus;
 import com.skcc.book.service.BookService;
@@ -31,13 +32,13 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
 
-    private final BookProducer bookProducer;
+    private final BookProducerService bookProducerService;
 
     private static final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final InStockBookService inStockBookService;
-    public BookServiceImpl(BookRepository bookRepository, BookProducer bookProducer, InStockBookService inStockBookService) {
+    public BookServiceImpl(BookRepository bookRepository, BookProducerService bookProducerService, InStockBookService inStockBookService) {
         this.bookRepository = bookRepository;
-        this.bookProducer = bookProducer;
+        this.bookProducerService = bookProducerService;
         this.inStockBookService = inStockBookService;
     }
 
@@ -142,11 +143,11 @@ public class BookServiceImpl implements BookService {
             bookChanged.setEventType(eventType);
             bookChanged.setRented(!book.getBookStatus().equals(BookStatus.AVAILABLE));
             bookChanged.setRentCnt((long) 0);
-            bookProducer.sendBookCreateEvent(bookChanged);
+            bookProducerService.sendBookCreateEvent(bookChanged);
         }else if(eventType.equals("DELETE_BOOK")){
             bookChanged.setEventType(eventType);
             bookChanged.setBookId(book.getId());
-            bookProducer.sendBookDeleteEvent(bookChanged);
+            bookProducerService.sendBookDeleteEvent(bookChanged);
         }
     }
 

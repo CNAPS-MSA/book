@@ -17,7 +17,7 @@ import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 @Service
-public class BookProducer {
+public class BookProducer implements BookProducerService{
 
     private final Logger log = LoggerFactory.getLogger(BookProducer.class);
 
@@ -42,18 +42,16 @@ public class BookProducer {
         log.info("Kafka producer initialized");
     }
 
-    public PublishResult sendBookCreateEvent(BookChanged bookChanged)throws ExecutionException, InterruptedException, JsonProcessingException{
+    public void sendBookCreateEvent(BookChanged bookChanged)throws ExecutionException, InterruptedException, JsonProcessingException{
 
         String message = objectMapper.writeValueAsString(bookChanged);
-        RecordMetadata metadata = producer.send(new ProducerRecord<>(TOPIC_CATALOG, message)).get();
-        return new PublishResult(metadata.topic(), metadata.partition(), metadata.offset(), Instant.ofEpochMilli(metadata.timestamp()));
+         producer.send(new ProducerRecord<>(TOPIC_CATALOG, message)).get();
     }
 
-    public PublishResult sendBookDeleteEvent(BookChanged bookDeleteEvent)throws ExecutionException, InterruptedException, JsonProcessingException{
+    public void sendBookDeleteEvent(BookChanged bookDeleteEvent)throws ExecutionException, InterruptedException, JsonProcessingException{
 
         String message = objectMapper.writeValueAsString(bookDeleteEvent);
-        RecordMetadata metadata = producer.send(new ProducerRecord<>(TOPIC_CATALOG, message)).get();
-        return new PublishResult(metadata.topic(), metadata.partition(), metadata.offset(), Instant.ofEpochMilli(metadata.timestamp()));
+         producer.send(new ProducerRecord<>(TOPIC_CATALOG, message)).get();
     }
 
     @PreDestroy
@@ -63,17 +61,5 @@ public class BookProducer {
     }
 
 
-    private static class PublishResult {
-        public final String topic;
-        public final int partition;
-        public final long offset;
-        public final Instant timestamp;
 
-        private PublishResult(String topic, int partition, long offset, Instant timestamp) {
-            this.topic = topic;
-            this.partition = partition;
-            this.offset = offset;
-            this.timestamp = timestamp;
-        }
-    }
 }
